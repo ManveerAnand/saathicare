@@ -44,6 +44,16 @@ export class FirestoreRepo implements Repo {
     return snap.exists ? (snap.data() as Profile) : null;
   }
 
+  async ensureProfile(profile: Profile) {
+    const ref = this.profile(profile.id);
+    return this.db.runTransaction(async (tx: Transaction) => {
+      const snap = await tx.get(ref);
+      if (snap.exists) return snap.data() as Profile;
+      tx.create(ref, JSON.parse(JSON.stringify(profile)) as Profile);
+      return profile;
+    });
+  }
+
   async listProfileIds() {
     const refs = await this.db.collection("profiles").listDocuments();
     return refs.map((r: DocumentReference) => r.id);

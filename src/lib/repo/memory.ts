@@ -34,6 +34,11 @@ export class MemoryRepo implements Repo {
     return p ? structuredClone(p) : null;
   }
 
+  async ensureProfile(profile: Profile) {
+    if (!this.profiles.has(profile.id)) this.profiles.set(profile.id, structuredClone(profile));
+    return structuredClone(this.profiles.get(profile.id)!);
+  }
+
   async listProfileIds() {
     return [...this.profiles.keys()];
   }

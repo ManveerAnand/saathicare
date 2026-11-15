@@ -1,7 +1,11 @@
-import { GoogleGenAI } from "@google/genai";
+import { FinishReason, GoogleGenAI } from "@google/genai";
 import { extractedMedicationsSchema, type ExtractedMedication } from "../validation";
 
-const MODEL = process.env.GEMINI_MODEL ?? "gemini-3.8-flash";
+// A fast, non-reasoning model: answers in about a second, where larger reasoning models took
+// over a minute under load. Short explanations and label reading do not need deep reasoning.
+const MODEL = process.env.GEMINI_MODEL ?? "gemini-3.5-flash-lite";
+/** Fail fast rather than leave an elder waiting on a spinner. */
+const TIMEOUT_MS = 25_000;
 
 let client: GoogleGenAI | null = null;
 function ai(): GoogleGenAI {
@@ -38,7 +42,12 @@ export async function extractMedications(imageBase64: string, mimeType: string):
         parts: [{ text: EXTRACT_PROMPT }, { inlineData: { mimeType, data: imageBase64 } }],
       },
     ],
-    config: { responseMimeType: "application/json", temperature: 0 },
+    config: {
+      responseMimeType: "application/json",
+      temperature: 0,
+      maxOutputTokens: 4096,
+      abortSignal: AbortSignal.timeout(TIMEOUT_MS),
+    },
   });
   const parsed = extractedMedicationsSchema.safeParse(JSON.parse(res.text ?? "{}"));
   return parsed.success ? parsed.data.medications.filter((m) => m.name.trim()) : [];
@@ -52,7 +61,11 @@ export async function explainMedication(name: string, dosage: string, instructio
 what "${name}" (${dosage}) is usually prescribed for, and one practical tip for taking it${
       instructions ? ` (their note: "${instructions}")` : ""
     }. Do not change their dose. End with: "Ask your doctor before changing anything."`,
-    config: { temperature: 0.2, maxOutputTokens: 200 },
+    // Generous cap: newer models spend part of the budget on reasoning before the answer.
+    config: { temperature: 0.2, maxOutputTokens: 2048, abortSignal: AbortSignal.timeout(TIMEOUT_MS) },
   });
-  return (res.text ?? "").trim().slice(0, 600);
+  const text = (res.text ?? "").trim();
+  // Never cache a cut-off answer: an empty result lets the user simply ask again.
+  const finished = res.candidates?.[0]?.finishReason === FinishReason.STOP;
+  return finished ? text.slice(0, 800) : "";
 }

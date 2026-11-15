@@ -1,6 +1,8 @@
 "use server";
 
+import { randomBytes } from "node:crypto";
 import { cookies, headers } from "next/headers";
+import { ensureDemoCircle } from "@/lib/demo";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { hashPasscode, verifyPasscode } from "@/lib/auth/passcode";
@@ -109,6 +111,15 @@ export async function signIn(_prev: FormState, form: FormData): Promise<FormStat
   redirect("/circle");
 }
 
+/** Opens the public demo circle in the chosen role. Demo passcodes are random and never shown. */
+export async function enterDemo(form: FormData): Promise<void> {
+  const role = ROLES.find((r) => r === form.get("role")) ?? "family";
+  const hashes = await Promise.all(ROLES.map(() => hashPasscode(randomBytes(16).toString("hex"))));
+  const profile = await ensureDemoCircle(repo(), { elder: hashes[0], caretaker: hashes[1], family: hashes[2] });
+  await startSession(profile.id, role);
+  redirect("/circle");
+}
+
 export async function signOut(): Promise<void> {
   (await cookies()).delete(SESSION_COOKIE);
   redirect("/");
@@ -188,8 +199,13 @@ export async function explain(form: FormData): Promise<void> {
   const med = id ? await repo().getMedication(session.profileId, id) : null;
   // Cached on the medication, so Gemini is asked once per medicine, not on every view.
   if (!med || med.explanation || !geminiConfigured()) return;
-  const text = await explainMedication(med.name, med.dosage, med.instructions);
-  if (text) await repo().setExplanation(session.profileId, id, text);
+  try {
+    const text = await explainMedication(med.name, med.dosage, med.instructions);
+    if (text) await repo().setExplanation(session.profileId, id, text);
+  } catch (err) {
+    // A slow or failed answer is not saved; the button stays so the person can try again.
+    console.error("[explain] Gemini request failed:", (err as Error).message);
+  }
   revalidatePath("/circle");
 }
 

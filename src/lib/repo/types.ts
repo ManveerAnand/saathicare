@@ -8,6 +8,8 @@ export type AppointmentInput = Omit<Appointment, "id"> & { id?: string };
 export interface Repo {
   createProfile(profile: NewProfile): Promise<Profile>;
   getProfile(id: string): Promise<Profile | null>;
+  /** Creates a profile with a fixed id if it does not exist yet; returns the stored one. */
+  ensureProfile(profile: Profile): Promise<Profile>;
   /** Every profile id, for the reminder job. */
   listProfileIds(): Promise<string[]>;
   updatePermissions(id: string, permissions: Permissions): Promise<void>;

@@ -27,6 +27,8 @@ export interface Profile {
   /** scrypt hashes, one per role. Never the passcode itself. */
   passcodeHashes: Record<Role, string>;
   createdAt: string;
+  /** The public demo circle: shown to visitors, never emailed. */
+  isDemo?: boolean;
 }
 
 export interface Medication {

@@ -20,7 +20,8 @@ export async function runReminderJob(repo: Repo, mailer: Mailer, now = new Date(
 
   for (const id of ids) {
     const profile = await repo.getProfile(id);
-    if (!profile) continue;
+    // The demo circle uses example addresses: never email it.
+    if (!profile || profile.isDemo) continue;
     const since = zonedToUtc(addDays(localDate(now, profile.timeZone), -1), "00:00", profile.timeZone);
     const [meds, logs, appts] = await Promise.all([
       repo.listMedications(id),
