@@ -12,7 +12,13 @@ const MISSED: ReadonlyArray<[daysAgo: number, medName: string, time: string]> = 
   [2, "Metformin", "20:00"],
   [5, "Metformin", "20:00"],
   [3, "Atorvastatin", "21:00"],
+  [9, "Metformin", "20:00"],
+  [12, "Atorvastatin", "21:00"],
+  [16, "Metformin", "20:00"],
+  [23, "Amlodipine", "09:00"],
 ];
+/** Days of history to fill: enough for the 30-day doctor visit summary. */
+const HISTORY_DAYS = 30;
 
 function demoMeds(today: string): Omit<Medication, "id" | "active" | "updatedAt">[] {
   return [
@@ -52,10 +58,10 @@ export async function ensureDemoCircle(repo: Repo, hashes: Profile["passcodeHash
 
   // Fill the past week, including today's doses that are already overdue (only where nothing
   // is logged yet), leaving the few MISSED ones so the trend and Care Assistant have a story.
-  const weekStart = zonedToUtc(addDays(today, -6), "00:00", TZ).toISOString();
-  const logged = new Set((await repo.listDoseLogs(profile.id, weekStart)).map((l) => `${l.medicationId}|${l.scheduledFor}`));
+  const historyStart = zonedToUtc(addDays(today, -(HISTORY_DAYS - 1)), "00:00", TZ).toISOString();
+  const logged = new Set((await repo.listDoseLogs(profile.id, historyStart)).map((l) => `${l.medicationId}|${l.scheduledFor}`));
   const writes: Promise<unknown>[] = [];
-  for (let daysAgo = 6; daysAgo >= 0; daysAgo--) {
+  for (let daysAgo = HISTORY_DAYS - 1; daysAgo >= 0; daysAgo--) {
     for (const dose of dosesForDate(meds, [], addDays(today, -daysAgo), TZ, now)) {
       if (daysAgo === 0 && dose.status !== "missed") continue; // keep today's due and later doses open
       const key = `${dose.medicationId}|${dose.scheduledFor}`;

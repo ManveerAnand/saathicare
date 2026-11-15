@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DEMO_PROFILE_ID, ensureDemoCircle } from "./demo";
 import { adherence } from "./domain/schedule";
+import { buildVisitSummary } from "./domain/visitSummary";
 import { runReminderJob } from "./reminderJob";
 import { MemoryRepo } from "./repo/memory";
 
@@ -22,6 +23,16 @@ describe("ensureDemoCircle", () => {
     expect(week.missed).toBeGreaterThanOrEqual(3);
     expect(week.percent).toBeGreaterThan(70);
     expect(week.percent).toBeLessThan(100);
+  });
+
+  it("fills a month of history, so the visit summary shows a real evening pattern", async () => {
+    const repo = new MemoryRepo();
+    const profile = await ensureDemoCircle(repo, hashes, now);
+    const meds = await repo.listMedications(profile.id);
+    const logs = await repo.listDoseLogs(profile.id, "2026-10-01T00:00:00.000Z");
+    const summary = buildVisitSummary(profile, meds, logs, [], now, 30);
+    expect(summary.overallPercent).toBeGreaterThan(90);
+    expect(summary.patterns[0]).toMatch(/^Most missed doses are in the evening/);
   });
 
   it("is idempotent and keeps a visitor's changes", async () => {

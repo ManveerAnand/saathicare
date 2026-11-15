@@ -251,6 +251,26 @@ details > summary::before { content: "+"; display: inline-grid; place-items: cen
 details[open] > summary::before { content: "−"; }
 details > summary::-webkit-details-marker { display: none; }
 
+/* Doctor visit summary */
+.visit-head { margin: 1rem 0; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 0.6rem 0.5rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+thead th { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.questions li { margin-bottom: 0.4rem; }
+.questions .write-in, .note-lines span { display: block; border-bottom: 1px solid var(--border-strong); min-height: 1.8rem; }
+.note-lines { display: grid; gap: 0.9rem; }
+.visit-link { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+
+@media print {
+  :root { --bg: #fff; --surface: #fff; --text: #000; --muted: #333; --border: #999; --border-strong: #555; --shadow: none; font-size: 11pt; }
+  body { background: #fff; }
+  .site-header, .site-footer, .skip-link, .no-print { display: none !important; }
+  main { max-width: none; padding: 0; }
+  .card { border: 1px solid #999; break-inside: avoid; }
+  .grid { grid-template-columns: 1fr 1fr; }
+}
+
 /* Elder view: fewer, bigger things */
 .elder-mode .dose { padding: 1.1rem 1.2rem; }
 .elder-mode .dose-time { font-size: 1.7rem; }

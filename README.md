@@ -16,6 +16,9 @@ sure doses and appointments are not forgotten. It goes beyond a reminder app in 
    the schedule. Nothing is saved until a person checks and confirms each medicine.
 3. **Everyone understands the medicines.** A "What is this for?" button gives a short,
    plain-language explanation, written for an elderly reader.
+4. **The doctor sees the real picture.** One tap turns 30 days of doses into a printable visit
+   summary: what is taken, how reliably, when the routine breaks down ("Metformin at 20:00 missed
+   4 times"), and questions to ask. Elders often cannot recall this in a short appointment.
 
 Built for the Catalyst Solo AI Hackathon (PromptWars x Catalyst, by Makers Need More).
 
@@ -70,6 +73,7 @@ so they are predictable and testable.
 | Smarter and more accessible | Gemini prescription reading, plain-language explanations, a large-text elder view | `src/lib/ai/gemini.ts`, `src/app/globals.css` |
 | Collaborative and reliable | Anyone in the circle can confirm a dose; reminders escalate to others | `src/lib/domain/reminders.ts` |
 | Smarter: decisions from context | A Care Assistant gives role-aware guidance (missed doses, double-dose risk, low adherence, upcoming visits, courses ending) | `src/lib/domain/assistant.ts` |
+| Helps at the doctor's visit | A printable 30-day summary: adherence per medicine, the hardest dose times, missed-dose patterns and questions to ask | `src/lib/domain/visitSummary.ts`, `src/app/circle/visit/page.tsx` |
 | The elder at the centre of their own decisions | Only the elder controls editing rights and the escalation delay; the elder is always told first | `src/lib/domain/permissions.ts` |
 
 ## How it works

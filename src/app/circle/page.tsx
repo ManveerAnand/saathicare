@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { explain, logDose, removeAppointment, removeMedication, signOut } from "@/app/actions";
 import { AppointmentForm, MedicationForm, PermissionsForm, ScanForm } from "@/components/forms";
@@ -202,7 +203,14 @@ export default async function CirclePage({ searchParams }: PageProps<"/circle">)
         </section>
 
         <section className="card" aria-labelledby="appointments">
-          <h2 id="appointments">Upcoming visits</h2>
+          <div className="visit-link">
+            <h2 id="appointments" style={{ margin: 0 }}>
+              Upcoming visits
+            </h2>
+            <Link className="button secondary" href="/circle/visit">
+              Prepare for the doctor
+            </Link>
+          </div>
           {appointments.length === 0 && <p>No upcoming appointments.</p>}
           {appointments.map((a) => (
             <div className="appt" key={a.id}>
