@@ -896,6 +896,20 @@ thead th {
   }
 }
 
+.circle-loading-skeleton {
+  display: grid;
+  gap: 0.75rem;
+}
+.circle-loading-skeleton span {
+  width: 75%;
+  height: 1rem;
+  border-radius: 0.5rem;
+  background: var(--border);
+}
+.circle-loading-skeleton span:last-child {
+  width: 50%;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
