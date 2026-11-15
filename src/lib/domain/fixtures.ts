@@ -18,6 +18,7 @@ export function makeProfile(overrides: Partial<Profile> = {}): Profile {
   };
 }
 
+/** Creates a sample medication with optional test overrides. */
 export function makeMedication(overrides: Partial<Medication> = {}): Medication {
   return {
     id: "met",

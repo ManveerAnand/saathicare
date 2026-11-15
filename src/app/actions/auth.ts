@@ -18,6 +18,7 @@ const setupFields = [
   ...contactSlots.flatMap((i) => [`contactName${i}`, `contactEmail${i}`, `contactRole${i}`]),
 ];
 
+/** Creates a care circle and signs in its elder. */
 export async function createProfile(previous: FormState, form: FormData): Promise<FormState> {
   const contacts = contactSlots
     .map((i) => ({
@@ -53,6 +54,7 @@ export async function createProfile(previous: FormState, form: FormData): Promis
   redirect(`/circle?welcome=${profile.id}`);
 }
 
+/** Checks the care code and passcode before opening the matching role. */
 export async function signIn(previous: FormState, form: FormData): Promise<FormState> {
   const fail = (error: FormIssue, field?: string) => formError(previous, error, form, ["profileId"], { field });
   const parsed = loginSchema.safeParse({
@@ -83,6 +85,7 @@ export async function signIn(previous: FormState, form: FormData): Promise<FormS
   redirect("/circle");
 }
 
+/** Clears the current care circle session and returns home. */
 export async function signOut(): Promise<void> {
   (await cookies()).delete(SESSION_COOKIE);
   redirect("/");

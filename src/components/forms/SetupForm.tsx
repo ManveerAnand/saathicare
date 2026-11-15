@@ -5,6 +5,7 @@ import { createProfile } from "@/app/actions/auth";
 import { emptyState, fieldError, Status } from "./Status";
 import { SubmitButton } from "./SubmitButton";
 
+/** Collects the elder and contact details for a new care circle. */
 export function SetupForm({ defaultTimeZone }: { defaultTimeZone: string }) {
   const [state, action] = useActionState(createProfile, emptyState);
   const errorId = useId();

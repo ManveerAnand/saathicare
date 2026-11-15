@@ -5,6 +5,7 @@ import { saveAppointment } from "@/app/actions/carePlan";
 import { emptyState, fieldError, Status } from "./Status";
 import { SubmitButton } from "./SubmitButton";
 
+/** Collects the date, location and notes for a doctor visit. */
 export function AppointmentForm({ today }: { today: string }) {
   const [state, action] = useActionState(saveAppointment, emptyState);
   const errorId = useId();

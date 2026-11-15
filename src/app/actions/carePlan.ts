@@ -12,6 +12,7 @@ import type { FormState } from "./types";
 const medicationFields = ["id", "name", "dosage", "instructions", "startDate", "endDate"];
 const appointmentFields = ["doctor", "purpose", "location", "date", "time", "notes"];
 
+/** Records a dose marked taken or skipped by a circle member. */
 export async function logDose(form: FormData): Promise<void> {
   const session = await requireSession();
   const parsed = doseLogSchema.safeParse(Object.fromEntries(form));
@@ -25,6 +26,7 @@ export async function logDose(form: FormData): Promise<void> {
   revalidatePath("/circle");
 }
 
+/** Validates and saves a medicine for a role allowed to edit the care plan. */
 export async function saveMedication(previous: FormState, form: FormData): Promise<FormState> {
   const times = form.getAll("times").map(String);
   const fail = (error: FormIssue) =>
@@ -48,6 +50,7 @@ export async function saveMedication(previous: FormState, form: FormData): Promi
   return { ok: `${parsed.data.name} saved.` };
 }
 
+/** Stops an existing medicine in the signed-in circle. */
 export async function removeMedication(form: FormData): Promise<void> {
   const session = await requireEditor();
   const id = String(form.get("id") ?? "");
@@ -56,6 +59,7 @@ export async function removeMedication(form: FormData): Promise<void> {
   revalidatePath("/circle");
 }
 
+/** Saves a visit using the care circle's time zone. */
 export async function saveAppointment(previous: FormState, form: FormData): Promise<FormState> {
   const fail = (error: FormIssue) => formError(previous, error, form, appointmentFields);
   const session = await requireEditor();
@@ -75,6 +79,7 @@ export async function saveAppointment(previous: FormState, form: FormData): Prom
   return { ok: `Appointment with ${rest.doctor} saved.` };
 }
 
+/** Deletes an appointment when the signed-in role has editing permission. */
 export async function removeAppointment(form: FormData): Promise<void> {
   const session = await requireEditor();
   const id = String(form.get("id") ?? "");
@@ -83,6 +88,7 @@ export async function removeAppointment(form: FormData): Promise<void> {
   revalidatePath("/circle");
 }
 
+/** Saves the elder's editing permissions and reminder delay. */
 export async function updatePermissions(_prev: FormState, form: FormData): Promise<FormState> {
   const session = await requireSession();
   if (!canManageAccess(session.role)) return { error: "Only the elder can change who may edit." };

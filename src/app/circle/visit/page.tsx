@@ -11,6 +11,7 @@ export const metadata: Metadata = { title: "Doctor visit summary | SaathiCare" }
 
 const DAYS = 30;
 
+/** Builds a printable report from the circle's last 30 days of care. */
 export default async function VisitSummaryPage() {
   const session = await currentSession();
   if (!session) redirect("/");

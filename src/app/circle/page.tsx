@@ -18,6 +18,7 @@ import { currentSession, repo } from "@/lib/server";
 
 export const metadata: Metadata = { title: "Care circle | SaathiCare" };
 
+/** Shows doses, appointments and medicines for the signed-in care circle. */
 export default async function CirclePage({ searchParams }: PageProps<"/circle">) {
   const session = await currentSession();
   if (!session) redirect("/");

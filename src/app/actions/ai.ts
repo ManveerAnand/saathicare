@@ -11,6 +11,7 @@ import type { ScanState } from "./types";
 const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
+/** Generates a plain-language explanation for a medicine in the signed-in circle. */
 export async function explain(form: FormData): Promise<void> {
   const session = await requireSession();
   const id = String(form.get("id") ?? "");
@@ -28,6 +29,7 @@ export async function explain(form: FormData): Promise<void> {
   revalidatePath("/circle");
 }
 
+/** Validates a prescription image and returns drafts for the caretaker to review. */
 export async function scanPrescription(_prev: ScanState, form: FormData): Promise<ScanState> {
   const session = await requireEditor();
   if (!session) return { error: "The elder has not allowed your role to add medicines." };

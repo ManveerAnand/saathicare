@@ -5,6 +5,7 @@ import { signIn } from "@/app/actions/auth";
 import { emptyState, fieldError, Status } from "./Status";
 import { SubmitButton } from "./SubmitButton";
 
+/** Opens a care circle using a care code and passcode. */
 export function SignInForm() {
   const [state, action] = useActionState(signIn, emptyState);
   const errorId = useId();

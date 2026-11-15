@@ -3,6 +3,7 @@ import { SetupForm } from "@/components/forms";
 
 export const metadata: Metadata = { title: "Start a care circle | SaathiCare" };
 
+/** Renders the form for starting a care circle. */
 export default function SetupPage() {
   return (
     <section className="card" aria-labelledby="setup">

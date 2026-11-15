@@ -39,15 +39,18 @@ export function aiLimiter(action: "explain" | "scan"): RateLimiter {
   return globalStore.__saathiAiLimiters[action];
 }
 
+/** Uses Gmail when configured and otherwise logs a redacted subject. */
 export function mailer(): Mailer {
   const { GMAIL_USER, GMAIL_APP_PASSWORD } = env();
   return GMAIL_USER && GMAIL_APP_PASSWORD ? gmailMailer(GMAIL_USER, GMAIL_APP_PASSWORD) : consoleMailer;
 }
 
+/** Returns the validated session signing secret. */
 export function sessionSecret(): string {
   return env().SESSION_SECRET;
 }
 
+/** Reads and verifies the session cookie for the current request. */
 export async function currentSession(): Promise<Session | null> {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   return readToken(token, sessionSecret());

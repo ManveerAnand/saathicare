@@ -6,6 +6,7 @@ import type { Permissions } from "@/lib/domain/types";
 import { emptyState, Status } from "./Status";
 import { SubmitButton } from "./SubmitButton";
 
+/** Lets the elder control editing access and the reminder delay. */
 export function PermissionsForm({ permissions }: { permissions: Permissions }) {
   const [state, action] = useActionState(updatePermissions, emptyState);
   return (

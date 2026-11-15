@@ -7,6 +7,7 @@ import type { ExtractedMedication } from "@/lib/validation";
 import { emptyState, fieldError, Status } from "./Status";
 import { SubmitButton } from "./SubmitButton";
 
+/** Adds a medicine, edits its schedule or confirms a prescription draft. */
 export function MedicationForm({
   medication,
   draft,

@@ -15,6 +15,7 @@ function ai(): GoogleGenAI {
   return client;
 }
 
+/** Reports whether Gemini is available on this server. */
 export function geminiConfigured(): boolean {
   return Boolean(env().GEMINI_API_KEY);
 }

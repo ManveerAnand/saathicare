@@ -7,6 +7,7 @@ import { MedicationForm } from "./MedicationForm";
 import { Status } from "./Status";
 import { SubmitButton } from "./SubmitButton";
 
+/** Uploads a prescription photo and lets the caretaker review each draft. */
 export function ScanForm({ today }: { today: string }) {
   const [state, action] = useActionState<ScanState, FormData>(scanPrescription, {});
   const [name, setName] = useState("");

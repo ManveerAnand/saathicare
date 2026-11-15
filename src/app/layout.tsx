@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: "#14532d" };
 
+/** Renders the shared site navigation, typography and footer. */
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${body.variable} ${display.variable}`}>
