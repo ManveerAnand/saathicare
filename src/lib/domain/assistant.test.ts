@@ -24,7 +24,10 @@ function ctx(overrides: Partial<AssistantContext> = {}): AssistantContext {
 
 describe("careInsights", () => {
   it("warns against doubling up when the next dose is close", () => {
-    const doses = [dose("14:00", "2026-11-15T08:30:00.000Z", "missed"), dose("18:00", "2026-11-15T12:30:00.000Z", "upcoming")];
+    const doses = [
+      dose("14:00", "2026-11-15T08:30:00.000Z", "missed"),
+      dose("18:00", "2026-11-15T12:30:00.000Z", "upcoming"),
+    ];
     const [first] = careInsights(ctx({ todaysDoses: doses }));
     expect(first.level).toBe("urgent");
     expect(first.message).toContain("Do not take two doses together");
@@ -46,7 +49,17 @@ describe("careInsights", () => {
   it("reminds about an appointment within two days, and courses ending soon", () => {
     const insights = careInsights(
       ctx({
-        appointments: [{ id: "a", doctor: "Dr. Rao", purpose: "Review", location: "Clinic", at: "2026-11-16T05:30:00.000Z", notes: "fasting", updatedBy: "elder" }],
+        appointments: [
+          {
+            id: "a",
+            doctor: "Dr. Rao",
+            purpose: "Review",
+            location: "Clinic",
+            at: "2026-11-16T05:30:00.000Z",
+            notes: "fasting",
+            updatedBy: "elder",
+          },
+        ],
         meds: [makeMedication({ endDate: "2026-11-17" })],
       }),
     );
@@ -62,7 +75,10 @@ describe("careInsights", () => {
 
     const mixed = careInsights(
       ctx({
-        todaysDoses: [dose("15:20", "2026-11-15T09:50:00.000Z", "due"), dose("08:00", "2026-11-15T02:30:00.000Z", "missed")],
+        todaysDoses: [
+          dose("15:20", "2026-11-15T09:50:00.000Z", "due"),
+          dose("08:00", "2026-11-15T02:30:00.000Z", "missed"),
+        ],
       }),
     );
     expect(mixed.map((i) => i.level)).toEqual(["urgent", "attention"]);

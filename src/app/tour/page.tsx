@@ -83,8 +83,8 @@ export default function TourPage() {
       <p className="eyebrow">For judges and first-time visitors</p>
       <h1>A 2-minute tour of SaathiCare</h1>
       <p className="lead">
-        Six short stops through the shared demo circle of Kamala Devi, 72, her caretaker Asha and her son Ravi.
-        Each step opens the demo in the right role. Use your browser&apos;s back button to return here.
+        Six short stops through the shared demo circle of Kamala Devi, 72, her caretaker Asha and her son Ravi. Each
+        step opens the demo in the right role. Use your browser&apos;s back button to return here.
       </p>
 
       <ol className="tour-steps">
@@ -125,11 +125,12 @@ export default function TourPage() {
             circle is never emailed.)
           </li>
           <li>
-            <strong>Security:</strong> passcodes hashed with scrypt, signed httpOnly sessions, server-side permission checks,
-            validated input, rate-limited sign-in and strict security headers.
+            <strong>Security:</strong> passcodes hashed with scrypt, signed httpOnly sessions, server-side permission
+            checks, validated input, rate-limited sign-in and strict security headers.
           </li>
           <li>
-            <strong>Quality:</strong> the care rules are plain, tested TypeScript; 80+ automated tests run on every push.
+            <strong>Quality:</strong> the care rules are plain, tested TypeScript; 80+ automated tests run on every
+            push.
           </li>
         </ul>
         <p>

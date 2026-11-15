@@ -2,8 +2,8 @@
 
 **One shared care plan for an elder, their caretakers and their family, with the elder in charge.**
 
-| ðŸŒ Live app | ðŸ§­ Guided tour (2 min) | ðŸ§ª Quality |
-|---|---|---|
+| ðŸŒ Live app                                                       | ðŸ§­ Guided tour (2 min)                                                     | ðŸ§ª Quality                            |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------------------- | --------------------------------------- |
 | **[saathicare-six.vercel.app](https://saathicare-six.vercel.app)** | **[saathicare-six.vercel.app/tour](https://saathicare-six.vercel.app/tour)** | 80+ automated tests Â· CI on every push |
 
 > **No sign-up needed.** On the home page, press **"Try the demo as the elder"** (or as family or
@@ -17,11 +17,11 @@
 
 1. **As the elder:** open the [home page](https://saathicare-six.vercel.app) and press **Try the
    demo as the elder**. The ring shows today's doses; the **Care Assistant** warns that a dose was
-   missed and the next one is soon (*do not take two together*). Press **âœ“ Taken** and watch the
+   missed and the next one is soon (_do not take two together_). Press **âœ“ Taken** and watch the
    day update. At the bottom, **Your choices** is where the elder decides who may edit and when
    family is told about a missed dose.
-2. **As family:** press **Sign out**, then **â€¦as family**. The page now asks *"How is Kamala
-   doing?"*, and there are no edit forms, because the elder has not allowed family to edit. Family
+2. **As family:** press **Sign out**, then **â€¦as family**. The page now asks _"How is Kamala
+   doing?"_, and there are no edit forms, because the elder has not allowed family to edit. Family
    can still confirm a dose.
 3. **As a caretaker:** sign in as caretaker. Under **Medicines**, try **Add from a prescription
    photo** (Gemini drafts each medicine; nothing is saved until you confirm) or **What is this
@@ -33,13 +33,13 @@
 If other visitors have changed the shared demo, the **Reset demo data** button on the dashboard
 restores it.
 
-| The day at a glance | Ready for the doctor |
-|---|---|
+| The day at a glance                                                                                                           | Ready for the doctor                                                                                                                                   |
+| ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | ![Dashboard: a ring showing 4 of 7 doses today, the Care Assistant, and the morning timeline](docs/screenshots/dashboard.jpg) | ![Doctor visit summary: 95% of doses taken, a table per medicine with the hardest dose time, and questions to ask](docs/screenshots/visit-summary.jpg) |
 
 ## Why it is different
 
-SaathiCare (*saathi* means "companion" in Hindi) keeps medicines, doses and doctor visits in one
+SaathiCare (_saathi_ means "companion" in Hindi) keeps medicines, doses and doctor visits in one
 place. Everyone signs in to the same care circle with their own passcode, and email reminders make
 sure doses and appointments are not forgotten. It goes beyond a reminder app in four ways:
 
@@ -68,13 +68,13 @@ The app is a **smart, dynamic assistant**: it makes decisions from the user's co
 viewing, the time in the elder's time zone, what was taken, the elder's own preferences) rather
 than only storing a list. The decisions are plain, tested functions in `src/lib/domain`:
 
-| Decision | Context it uses | Logic | File |
-|---|---|---|---|
-| Status of each dose | Time now in the elder's time zone, dose logs | Due from 30 min before; missed 60 min after with no log; otherwise later, taken or skipped | `schedule.ts` |
-| Who gets an email, and when | Dose status, the elder's escalation delay, appointment time | The elder is reminded 30 min before and again when a dose is missed; caretakers and family only after the elder's delay; everyone 24 h before an appointment; never the same email twice | `reminders.ts` |
-| Care Assistant guidance | Today's doses, 7-day adherence, appointments, course end dates, viewer's role | Missed dose with the next one under 4 h away: warn against doubling up. Missed otherwise: prompt to log it or ask the doctor. Adherence under 80% across at least 3 doses: suggest a pill box or a check-in. Appointment within 48 h: what to bring. Course ending within 3 days: check with the doctor. Speaks to the elder as "you" and to others by name | `assistant.ts` |
-| Who may change the plan | Role, the elder's choices | The elder always can; caretakers and family only if the elder allows; only the elder changes these rights | `permissions.ts` |
-| Adherence | Logs over 7 days | Taken out of decided doses (taken, missed, skipped); upcoming doses are not counted against anyone | `schedule.ts` |
+| Decision                    | Context it uses                                                               | Logic                                                                                                                                                                                                                                                                                                                                                       | File             |
+| --------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| Status of each dose         | Time now in the elder's time zone, dose logs                                  | Due from 30 min before; missed 60 min after with no log; otherwise later, taken or skipped                                                                                                                                                                                                                                                                  | `schedule.ts`    |
+| Who gets an email, and when | Dose status, the elder's escalation delay, appointment time                   | The elder is reminded 30 min before and again when a dose is missed; caretakers and family only after the elder's delay; everyone 24 h before an appointment; never the same email twice                                                                                                                                                                    | `reminders.ts`   |
+| Care Assistant guidance     | Today's doses, 7-day adherence, appointments, course end dates, viewer's role | Missed dose with the next one under 4 h away: warn against doubling up. Missed otherwise: prompt to log it or ask the doctor. Adherence under 80% across at least 3 doses: suggest a pill box or a check-in. Appointment within 48 h: what to bring. Course ending within 3 days: check with the doctor. Speaks to the elder as "you" and to others by name | `assistant.ts`   |
+| Who may change the plan     | Role, the elder's choices                                                     | The elder always can; caretakers and family only if the elder allows; only the elder changes these rights                                                                                                                                                                                                                                                   | `permissions.ts` |
+| Adherence                   | Logs over 7 days                                                              | Taken out of decided doses (taken, missed, skipped); upcoming doses are not counted against anyone                                                                                                                                                                                                                                                          | `schedule.ts`    |
 
 AI (Gemini) is used where judgment on messy input helps: reading prescription photos and
 explaining medicines. Safety-critical rules (timing, escalation, permissions) are deterministic,
@@ -96,19 +96,19 @@ so they are predictable and testable.
 
 ## Problem statement, mapped to the code
 
-| The problem asks for | How SaathiCare does it | Where |
-|---|---|---|
-| A shared ecosystem for elders, caretakers and family | One care circle per elder, with three roles: elder, caretaker, family | `src/lib/domain/types.ts` |
-| Secure, passcode-based access | A separate passcode per role, hashed with scrypt; signed, httpOnly, SameSite=strict session cookie; rate-limited sign-in | `src/lib/auth/` |
-| View, add, edit and manage medication schedules | Medicines with dose, instructions, daily times, and start and end dates; soft delete keeps the history | `src/app/actions/carePlan.ts`, `src/components/forms/` |
-| Track adherence | One-tap "Taken" or "Skip"; 7-day adherence with a daily trend | `src/lib/domain/schedule.ts` |
-| Monitor upcoming doctor appointments | Appointments with doctor, reason, place and notes | `src/components/circle/AppointmentsCard.tsx` |
-| Email reminders for upcoming doses, missed doses and appointments | A reminder job every 15 minutes, idempotent, so each email is sent once | `src/lib/domain/reminders.ts`, `src/lib/reminderJob.ts` |
-| Smarter and more accessible | Gemini prescription reading, plain-language explanations, a large-text elder view | `src/lib/ai/gemini.ts`, `src/app/globals.css` |
-| Collaborative and reliable | Anyone in the circle can confirm a dose; reminders escalate to others | `src/lib/domain/reminders.ts` |
-| Smarter: decisions from context | A Care Assistant gives role-aware guidance (missed doses, double-dose risk, low adherence, upcoming visits, courses ending) | `src/lib/domain/assistant.ts` |
-| Helps at the doctor's visit | A printable 30-day summary: adherence per medicine, the hardest dose times, missed-dose patterns and questions to ask | `src/lib/domain/visitSummary.ts`, `src/app/circle/visit/page.tsx` |
-| The elder at the centre of their own decisions | Only the elder controls editing rights and the escalation delay; the elder is always told first | `src/lib/domain/permissions.ts` |
+| The problem asks for                                              | How SaathiCare does it                                                                                                      | Where                                                             |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| A shared ecosystem for elders, caretakers and family              | One care circle per elder, with three roles: elder, caretaker, family                                                       | `src/lib/domain/types.ts`                                         |
+| Secure, passcode-based access                                     | A separate passcode per role, hashed with scrypt; signed, httpOnly, SameSite=strict session cookie; rate-limited sign-in    | `src/lib/auth/`                                                   |
+| View, add, edit and manage medication schedules                   | Medicines with dose, instructions, daily times, and start and end dates; soft delete keeps the history                      | `src/app/actions/carePlan.ts`, `src/components/forms/`            |
+| Track adherence                                                   | One-tap "Taken" or "Skip"; 7-day adherence with a daily trend                                                               | `src/lib/domain/schedule.ts`                                      |
+| Monitor upcoming doctor appointments                              | Appointments with doctor, reason, place and notes                                                                           | `src/components/circle/AppointmentsCard.tsx`                      |
+| Email reminders for upcoming doses, missed doses and appointments | A reminder job every 15 minutes, idempotent, so each email is sent once                                                     | `src/lib/domain/reminders.ts`, `src/lib/reminderJob.ts`           |
+| Smarter and more accessible                                       | Gemini prescription reading, plain-language explanations, a large-text elder view                                           | `src/lib/ai/gemini.ts`, `src/app/globals.css`                     |
+| Collaborative and reliable                                        | Anyone in the circle can confirm a dose; reminders escalate to others                                                       | `src/lib/domain/reminders.ts`                                     |
+| Smarter: decisions from context                                   | A Care Assistant gives role-aware guidance (missed doses, double-dose risk, low adherence, upcoming visits, courses ending) | `src/lib/domain/assistant.ts`                                     |
+| Helps at the doctor's visit                                       | A printable 30-day summary: adherence per medicine, the hardest dose times, missed-dose patterns and questions to ask       | `src/lib/domain/visitSummary.ts`, `src/app/circle/visit/page.tsx` |
+| The elder at the centre of their own decisions                    | Only the elder controls editing rights and the escalation delay; the elder is always told first                             | `src/lib/domain/permissions.ts`                                   |
 
 ## How it works
 

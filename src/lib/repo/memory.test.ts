@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { MemoryRepo } from "./memory";
 
-const base = { dosage: "5 mg", instructions: "", times: ["08:00"], startDate: "2026-11-01", updatedBy: "elder" as const };
+const base = {
+  dosage: "5 mg",
+  instructions: "",
+  times: ["08:00"],
+  startDate: "2026-11-01",
+  updatedBy: "elder" as const,
+};
 
 describe("MemoryRepo", () => {
   it("lists medicines by name, ignoring case, then by id", async () => {
@@ -16,7 +22,13 @@ describe("MemoryRepo", () => {
     const repo = new MemoryRepo();
     for (const id of ["p", "q"]) {
       await repo.saveMedication(id, { ...base, name: "Metformin" });
-      await repo.saveAppointment(id, { doctor: "Dr", purpose: "x", location: "y", at: "2026-12-01T00:00:00.000Z", updatedBy: "elder" });
+      await repo.saveAppointment(id, {
+        doctor: "Dr",
+        purpose: "x",
+        location: "y",
+        at: "2026-12-01T00:00:00.000Z",
+        updatedBy: "elder",
+      });
       await repo.markRemindersSent(id, ["k"]);
     }
     await repo.clearCareData("p");

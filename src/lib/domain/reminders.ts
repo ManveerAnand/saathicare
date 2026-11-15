@@ -38,10 +38,7 @@ export function remindersDue(
   };
 
   // Yesterday too, so a late-evening dose missed just before midnight still escalates.
-  const doses = [
-    ...dosesForDate(meds, logs, addDays(today, -1), tz, now),
-    ...dosesForDate(meds, logs, today, tz, now),
-  ];
+  const doses = [...dosesForDate(meds, logs, addDays(today, -1), tz, now), ...dosesForDate(meds, logs, today, tz, now)];
 
   for (const dose of doses) {
     const minutesLate = (now.getTime() - Date.parse(dose.scheduledFor)) / MINUTE;

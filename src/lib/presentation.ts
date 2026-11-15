@@ -32,7 +32,9 @@ export function period(localTime: string): Period {
 
 /** "Good morning", "Good afternoon" or "Good evening" for the hour in `tz`. */
 export function greeting(now: Date, tz: string): string {
-  const hour = Number(new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "2-digit", hourCycle: "h23" }).format(now));
+  const hour = Number(
+    new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "2-digit", hourCycle: "h23" }).format(now),
+  );
   return hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 }
 

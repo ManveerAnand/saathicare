@@ -35,7 +35,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
         </main>
         <footer className="site-footer">
-          <p>SaathiCare helps families remember and coordinate. It does not give medical advice: always ask your doctor.</p>
+          <p>
+            SaathiCare helps families remember and coordinate. It does not give medical advice: always ask your doctor.
+          </p>
         </footer>
       </body>
     </html>

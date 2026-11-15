@@ -104,7 +104,9 @@ export function buildVisitSummary(
   const totalMissed = missedByPart.morning + missedByPart.afternoon + missedByPart.evening;
 
   if (totalMissed >= MIN_DOSES_FOR_PATTERN) {
-    const [part, count] = (Object.entries(missedByPart) as [keyof typeof missedByPart, number][]).sort((a, b) => b[1] - a[1])[0];
+    const [part, count] = (Object.entries(missedByPart) as [keyof typeof missedByPart, number][]).sort(
+      (a, b) => b[1] - a[1],
+    )[0];
     if (count / totalMissed >= 0.5) {
       patterns.push(`Most missed doses are in the ${part}: ${count} of ${totalMissed}.`);
       questions.push(`Could ${part} doses be moved to a time that is easier to remember?`);
@@ -116,7 +118,9 @@ export function buildVisitSummary(
       patterns.push(`${m.name} at ${m.hardestTime.time} was missed ${m.hardestTime.missed} times.`);
     }
     if (m.percent !== null && m.percent < LOW_PERCENT && m.taken + m.missed + m.skipped >= MIN_DOSES_FOR_PATTERN) {
-      questions.push(`${m.name} was taken ${m.percent}% of the time. Is it still needed, or is there a simpler schedule?`);
+      questions.push(
+        `${m.name} was taken ${m.percent}% of the time. Is it still needed, or is there a simpler schedule?`,
+      );
     }
     if (m.skipped >= MIN_DOSES_FOR_PATTERN) {
       patterns.push(`${m.name} was deliberately skipped ${m.skipped} times.`);
@@ -131,7 +135,8 @@ export function buildVisitSummary(
   }
 
   if (meds.length >= 5) questions.push(`With ${meds.length} medicines, can any be combined or stopped?`);
-  if (patterns.length === 0 && totals.decided > 0) patterns.push("No worrying patterns: doses are being taken regularly.");
+  if (patterns.length === 0 && totals.decided > 0)
+    patterns.push("No worrying patterns: doses are being taken regularly.");
 
   return {
     from,

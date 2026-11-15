@@ -30,7 +30,10 @@ export async function runReminderJob(repo: Repo, mailer: Mailer, now = new Date(
     ]);
 
     const candidates = remindersDue(profile, meds, logs, appts, new Set(), now);
-    const already = await repo.sentReminderKeys(id, candidates.map((r) => r.key));
+    const already = await repo.sentReminderKeys(
+      id,
+      candidates.map((r) => r.key),
+    );
     const delivered: string[] = [];
 
     for (const r of candidates.filter((c) => !already.has(c.key))) {

@@ -23,10 +23,39 @@ const HISTORY_DAYS = 30;
 
 function demoMeds(today: string): Omit<Medication, "id" | "active" | "updatedAt">[] {
   return [
-    { name: "Metformin", dosage: "500 mg", instructions: "After breakfast and dinner", times: ["08:00", "20:00"], startDate: addDays(today, -30), updatedBy: "caretaker" },
-    { name: "Amlodipine", dosage: "5 mg", instructions: "For blood pressure, same time every day", times: ["09:00"], startDate: addDays(today, -30), updatedBy: "caretaker" },
-    { name: "Atorvastatin", dosage: "10 mg", instructions: "At bedtime", times: ["21:00"], startDate: addDays(today, -30), updatedBy: "elder" },
-    { name: "Amoxicillin", dosage: "500 mg", instructions: "Finish the full course", times: ["08:00", "14:00", "20:00"], startDate: addDays(today, -4), endDate: addDays(today, 2), updatedBy: "caretaker" },
+    {
+      name: "Metformin",
+      dosage: "500 mg",
+      instructions: "After breakfast and dinner",
+      times: ["08:00", "20:00"],
+      startDate: addDays(today, -30),
+      updatedBy: "caretaker",
+    },
+    {
+      name: "Amlodipine",
+      dosage: "5 mg",
+      instructions: "For blood pressure, same time every day",
+      times: ["09:00"],
+      startDate: addDays(today, -30),
+      updatedBy: "caretaker",
+    },
+    {
+      name: "Atorvastatin",
+      dosage: "10 mg",
+      instructions: "At bedtime",
+      times: ["21:00"],
+      startDate: addDays(today, -30),
+      updatedBy: "elder",
+    },
+    {
+      name: "Amoxicillin",
+      dosage: "500 mg",
+      instructions: "Finish the full course",
+      times: ["08:00", "14:00", "20:00"],
+      startDate: addDays(today, -4),
+      endDate: addDays(today, 2),
+      updatedBy: "caretaker",
+    },
   ];
 }
 
@@ -36,7 +65,11 @@ function demoMeds(today: string): Omit<Medication, "id" | "active" | "updatedAt"
  * it only fills in what is missing, so a visitor's own changes today are kept. Default medicines
  * a visitor stopped come back and permissions are reset, so the demo cannot be left broken.
  */
-export async function ensureDemoCircle(repo: Repo, hashes: Profile["passcodeHashes"], now = new Date()): Promise<Profile> {
+export async function ensureDemoCircle(
+  repo: Repo,
+  hashes: Profile["passcodeHashes"],
+  now = new Date(),
+): Promise<Profile> {
   const profile = await repo.ensureProfile({
     id: DEMO_PROFILE_ID,
     elderName: "Kamala Devi",
@@ -58,19 +91,25 @@ export async function ensureDemoCircle(repo: Repo, hashes: Profile["passcodeHash
   let meds = await repo.listMedications(profile.id);
   // Fixed ids keep two visitors entering at once from creating duplicates.
   const missing = demoMeds(today).filter((d) => !meds.some((m) => m.name === d.name));
-  const created = await Promise.all(missing.map((m) => repo.saveMedication(profile.id, { ...m, id: `demo-${m.name.toLowerCase()}` })));
+  const created = await Promise.all(
+    missing.map((m) => repo.saveMedication(profile.id, { ...m, id: `demo-${m.name.toLowerCase()}` })),
+  );
   meds = [...meds, ...created];
 
   // Fill the past week, including today's doses that are already overdue (only where nothing
   // is logged yet), leaving the few MISSED ones so the trend and Care Assistant have a story.
   const historyStart = zonedToUtc(addDays(today, -(HISTORY_DAYS - 1)), "00:00", TZ).toISOString();
-  const logged = new Set((await repo.listDoseLogs(profile.id, historyStart)).map((l) => `${l.medicationId}|${l.scheduledFor}`));
+  const logged = new Set(
+    (await repo.listDoseLogs(profile.id, historyStart)).map((l) => `${l.medicationId}|${l.scheduledFor}`),
+  );
   const writes: Promise<unknown>[] = [];
   for (let daysAgo = HISTORY_DAYS - 1; daysAgo >= 0; daysAgo--) {
     for (const dose of dosesForDate(meds, [], addDays(today, -daysAgo), TZ, now)) {
       if (daysAgo === 0 && dose.status !== "missed") continue; // keep today's due and later doses open
       const key = `${dose.medicationId}|${dose.scheduledFor}`;
-      const missed = MISSED.some(([d, name, time]) => d === daysAgo && name === dose.medicationName && time === dose.localTime);
+      const missed = MISSED.some(
+        ([d, name, time]) => d === daysAgo && name === dose.medicationName && time === dose.localTime,
+      );
       if (logged.has(key) || missed) continue;
       writes.push(
         repo.logDose(profile.id, {
@@ -116,7 +155,12 @@ export function canResetDemo(profileId: string): boolean {
 }
 
 /** Wipes the demo circle's care data and re-seeds it, keeping the profile (and so every session). */
-export async function resetDemoCircle(repo: Repo, profileId: string, hashes: Profile["passcodeHashes"], now = new Date()): Promise<Profile> {
+export async function resetDemoCircle(
+  repo: Repo,
+  profileId: string,
+  hashes: Profile["passcodeHashes"],
+  now = new Date(),
+): Promise<Profile> {
   if (!canResetDemo(profileId)) throw new Error("Only the demo circle can be reset.");
   await repo.clearCareData(profileId);
   return ensureDemoCircle(repo, hashes, now);

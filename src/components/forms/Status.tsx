@@ -9,7 +9,11 @@ export const emptyState: FormState = {};
 export function Status({ state }: { state: FormState }) {
   return (
     <div aria-live="polite">
-      {state.error && <p className="notice error" role="alert">{state.error}</p>}
+      {state.error && (
+        <p className="notice error" role="alert">
+          {state.error}
+        </p>
+      )}
       {state.ok && <p className="notice ok">{state.ok}</p>}
     </div>
   );

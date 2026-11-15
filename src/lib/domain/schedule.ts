@@ -13,13 +13,7 @@ function activeOn(med: Medication, date: string): boolean {
 }
 
 /** Every scheduled dose on one local date, with its status at `now`, sorted by time. */
-export function dosesForDate(
-  meds: Medication[],
-  logs: DoseLog[],
-  date: string,
-  timeZone: string,
-  now: Date,
-): Dose[] {
+export function dosesForDate(meds: Medication[], logs: DoseLog[], date: string, timeZone: string, now: Date): Dose[] {
   const logByKey = new Map(logs.map((l) => [`${l.medicationId}|${l.scheduledFor}`, l]));
   const doses: Dose[] = [];
 
@@ -60,13 +54,7 @@ export interface Adherence {
 }
 
 /** Adherence over the `days` local days ending today. Upcoming and due doses are ignored. */
-export function adherence(
-  meds: Medication[],
-  logs: DoseLog[],
-  timeZone: string,
-  now: Date,
-  days = 7,
-): Adherence {
+export function adherence(meds: Medication[], logs: DoseLog[], timeZone: string, now: Date, days = 7): Adherence {
   const today = localDate(now, timeZone);
   let taken = 0;
   let missed = 0;

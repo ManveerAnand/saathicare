@@ -45,7 +45,14 @@ export default async function CirclePage({ searchParams }: PageProps<"/circle">)
     <div className={role === "elder" ? "elder-mode" : undefined}>
       {welcome && <WelcomeNotice careCode={profile.id} />}
       {profile.isDemo && <DemoBanner role={role} />}
-      <CareSummary profile={profile} role={role} now={now} doses={doses} week={week} nextAppointment={appointments[0]} />
+      <CareSummary
+        profile={profile}
+        role={role}
+        now={now}
+        doses={doses}
+        week={week}
+        nextAppointment={appointments[0]}
+      />
       <CareAssistant insights={insights} />
       <DoseTimeline doses={doses} editable={editable} />
       <div className="grid">

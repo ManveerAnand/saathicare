@@ -29,15 +29,32 @@ export function MedicationForm({
       <label htmlFor={`${prefix}-name`}>Medicine name</label>
       <input id={`${prefix}-name`} name="name" defaultValue={values?.name ?? source?.name} required maxLength={80} />
       <label htmlFor={`${prefix}-dosage`}>Dose</label>
-      <input id={`${prefix}-dosage`} name="dosage" defaultValue={values?.dosage ?? source?.dosage} placeholder="500 mg, 1 tablet" required maxLength={60} />
-      <label htmlFor={`${prefix}-instructions`}>Instructions <span className="hint">(optional)</span></label>
-      <input id={`${prefix}-instructions`} name="instructions" defaultValue={values?.instructions ?? source?.instructions} placeholder="After food" maxLength={300} />
+      <input
+        id={`${prefix}-dosage`}
+        name="dosage"
+        defaultValue={values?.dosage ?? source?.dosage}
+        placeholder="500 mg, 1 tablet"
+        required
+        maxLength={60}
+      />
+      <label htmlFor={`${prefix}-instructions`}>
+        Instructions <span className="hint">(optional)</span>
+      </label>
+      <input
+        id={`${prefix}-instructions`}
+        name="instructions"
+        defaultValue={values?.instructions ?? source?.instructions}
+        placeholder="After food"
+        maxLength={300}
+      />
       <fieldset>
         <legend>Times each day</legend>
         <div className="row">
           {times.map((t, i) => (
             <div key={i}>
-              <label htmlFor={`${prefix}-time${i}`} className="sr-only">Time {i + 1}</label>
+              <label htmlFor={`${prefix}-time${i}`} className="sr-only">
+                Time {i + 1}
+              </label>
               <input id={`${prefix}-time${i}`} name="times" type="time" defaultValue={t} />
             </div>
           ))}
@@ -46,11 +63,24 @@ export function MedicationForm({
       <div className="grid">
         <div>
           <label htmlFor={`${prefix}-start`}>Start date</label>
-          <input id={`${prefix}-start`} name="startDate" type="date" defaultValue={values?.startDate ?? medication?.startDate ?? today} required />
+          <input
+            id={`${prefix}-start`}
+            name="startDate"
+            type="date"
+            defaultValue={values?.startDate ?? medication?.startDate ?? today}
+            required
+          />
         </div>
         <div>
-          <label htmlFor={`${prefix}-end`}>End date <span className="hint">(optional)</span></label>
-          <input id={`${prefix}-end`} name="endDate" type="date" defaultValue={values?.endDate ?? medication?.endDate} />
+          <label htmlFor={`${prefix}-end`}>
+            End date <span className="hint">(optional)</span>
+          </label>
+          <input
+            id={`${prefix}-end`}
+            name="endDate"
+            type="date"
+            defaultValue={values?.endDate ?? medication?.endDate}
+          />
         </div>
       </div>
       <Status state={state} />

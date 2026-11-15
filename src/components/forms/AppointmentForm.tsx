@@ -26,7 +26,9 @@ export function AppointmentForm({ today }: { today: string }) {
           <input id="appt-time" name="time" type="time" defaultValue={values?.time} required />
         </div>
       </div>
-      <label htmlFor="notes">Notes <span className="hint">(optional: reports to bring, fasting)</span></label>
+      <label htmlFor="notes">
+        Notes <span className="hint">(optional: reports to bring, fasting)</span>
+      </label>
       <textarea id="notes" name="notes" defaultValue={values?.notes} rows={2} maxLength={500} />
       <Status state={state} />
       <SubmitButton>Add appointment</SubmitButton>

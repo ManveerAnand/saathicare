@@ -53,7 +53,9 @@ export default async function VisitSummaryPage() {
 
       <section className="card" aria-labelledby="overall">
         <h2 id="overall">Overall</h2>
-        <p className="stat">{s.overallPercent === null ? "No doses recorded yet" : `${s.overallPercent}% of doses taken`}</p>
+        <p className="stat">
+          {s.overallPercent === null ? "No doses recorded yet" : `${s.overallPercent}% of doses taken`}
+        </p>
       </section>
 
       <section className="card" aria-labelledby="meds">
@@ -137,7 +139,8 @@ export default async function VisitSummaryPage() {
       </section>
 
       <p className="muted">
-        This summary lists what was recorded in SaathiCare. It is not medical advice. Please review all medicines with the doctor.
+        This summary lists what was recorded in SaathiCare. It is not medical advice. Please review all medicines with
+        the doctor.
       </p>
     </article>
   );

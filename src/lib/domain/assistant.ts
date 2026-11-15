@@ -40,9 +40,7 @@ export function careInsights(ctx: AssistantContext): Insight[] {
   const out: Insight[] = [];
 
   for (const dose of todaysDoses.filter((d) => d.status === "missed")) {
-    const next = todaysDoses.find(
-      (d) => d.medicationId === dose.medicationId && d.scheduledFor > dose.scheduledFor,
-    );
+    const next = todaysDoses.find((d) => d.medicationId === dose.medicationId && d.scheduledFor > dose.scheduledFor);
     const hoursToNext = next ? (Date.parse(next.scheduledFor) - now.getTime()) / HOUR : Infinity;
     out.push(
       hoursToNext <= DOUBLE_DOSE_WINDOW_HOURS && next
@@ -77,7 +75,12 @@ export function careInsights(ctx: AssistantContext): Insight[] {
 
   const soon = appointments.find((a) => Date.parse(a.at) - now.getTime() <= 48 * HOUR);
   if (soon) {
-    const when = new Date(soon.at).toLocaleString("en-IN", { timeZone: tz, weekday: "long", hour: "numeric", minute: "2-digit" });
+    const when = new Date(soon.at).toLocaleString("en-IN", {
+      timeZone: tz,
+      weekday: "long",
+      hour: "numeric",
+      minute: "2-digit",
+    });
     out.push({
       level: "info",
       message: `${isElder ? "You have" : `${profile.elderName} has`} an appointment with ${soon.doctor} on ${when}. Take the medicine list${soon.notes ? ` and remember: ${soon.notes}` : ""}.`,
@@ -94,7 +97,12 @@ export function careInsights(ctx: AssistantContext): Insight[] {
   }
 
   if (todaysDoses.length && todaysDoses.every((d) => d.status === "taken" || d.status === "skipped")) {
-    out.push({ level: "good", message: isElder ? "All of today's doses are done. Well done!" : `${profile.elderName} has finished today's doses.` });
+    out.push({
+      level: "good",
+      message: isElder
+        ? "All of today's doses are done. Well done!"
+        : `${profile.elderName} has finished today's doses.`,
+    });
   }
 
   return out.sort((a, b) => ORDER.indexOf(a.level) - ORDER.indexOf(b.level));

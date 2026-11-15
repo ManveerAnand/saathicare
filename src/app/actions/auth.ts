@@ -12,7 +12,9 @@ import type { FormState } from "./types";
 
 const contactSlots = [0, 1, 2];
 const setupFields = [
-  "elderName", "elderEmail", "timeZone",
+  "elderName",
+  "elderEmail",
+  "timeZone",
   ...contactSlots.flatMap((i) => [`contactName${i}`, `contactEmail${i}`, `contactRole${i}`]),
 ];
 
@@ -47,7 +49,9 @@ export async function createProfile(previous: FormState, form: FormData): Promis
 export async function signIn(previous: FormState, form: FormData): Promise<FormState> {
   const fail = (error: string) => formError(previous, error, form, ["profileId"]);
   const parsed = loginSchema.safeParse({
-    profileId: String(form.get("profileId") ?? "").trim().toLowerCase(),
+    profileId: String(form.get("profileId") ?? "")
+      .trim()
+      .toLowerCase(),
     passcode: form.get("passcode"),
   });
   if (!parsed.success) return fail(firstError(parsed.error));

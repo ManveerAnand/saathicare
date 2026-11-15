@@ -54,7 +54,13 @@ describe("buildVisitSummary", () => {
 
   it("handles a circle with no medicines yet", () => {
     const s = buildVisitSummary(profile, [], [], [], now, 30);
-    expect(s).toMatchObject({ overallPercent: null, medications: [], patterns: [], questions: [], nextAppointment: null });
+    expect(s).toMatchObject({
+      overallPercent: null,
+      medications: [],
+      patterns: [],
+      questions: [],
+      nextAppointment: null,
+    });
     expect(s.from).toBe("2026-10-17");
     expect(s.to).toBe("2026-11-15");
   });

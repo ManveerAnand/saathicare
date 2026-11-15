@@ -30,8 +30,11 @@ describe("greeting", () => {
 
 describe("trendLabel", () => {
   it("lists each day, with none for days without doses", () => {
-    expect(trendLabel([{ date: "2025-01-14", percent: 100 }, { date: "2025-01-15", percent: null }])).toBe(
-      "Doses taken per day: 2025-01-14 100%, 2025-01-15 none",
-    );
+    expect(
+      trendLabel([
+        { date: "2025-01-14", percent: 100 },
+        { date: "2025-01-15", percent: null },
+      ]),
+    ).toBe("Doses taken per day: 2025-01-14 100%, 2025-01-15 none");
   });
 });

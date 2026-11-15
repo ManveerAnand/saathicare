@@ -50,7 +50,13 @@ export function TextSizeToggle() {
   return (
     <div className="text-size" role="group" aria-label="Text size">
       {SIZES.map((s) => (
-        <button key={s} type="button" className={s === size ? "active" : undefined} aria-pressed={s === size} onClick={() => choose(s)}>
+        <button
+          key={s}
+          type="button"
+          className={s === size ? "active" : undefined}
+          aria-pressed={s === size}
+          onClick={() => choose(s)}
+        >
           <span aria-hidden="true">{LABEL[s].short}</span>
           <span className="sr-only">{LABEL[s].long}</span>
         </button>

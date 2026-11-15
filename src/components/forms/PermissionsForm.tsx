@@ -21,7 +21,11 @@ export function PermissionsForm({ permissions }: { permissions: Permissions }) {
       <label htmlFor="escalateAfterMinutes">
         If I miss a dose, wait this long before telling others <span className="hint">(minutes)</span>
       </label>
-      <select id="escalateAfterMinutes" name="escalateAfterMinutes" defaultValue={String(permissions.escalateAfterMinutes)}>
+      <select
+        id="escalateAfterMinutes"
+        name="escalateAfterMinutes"
+        defaultValue={String(permissions.escalateAfterMinutes)}
+      >
         {[0, 15, 30, 60, 120, 240].map((m) => (
           <option key={m} value={m}>
             {m === 0 ? "Tell them straight away" : `${m} minutes`}

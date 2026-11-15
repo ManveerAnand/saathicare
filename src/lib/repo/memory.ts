@@ -70,9 +70,7 @@ export class MemoryRepo implements Repo {
       active: true,
       // A changed name or dosage needs a fresh explanation.
       explanation:
-        previous && previous.name === input.name && previous.dosage === input.dosage
-          ? previous.explanation
-          : undefined,
+        previous && previous.name === input.name && previous.dosage === input.dosage ? previous.explanation : undefined,
       updatedAt: new Date().toISOString(),
     };
     meds.set(id, med);
@@ -90,9 +88,7 @@ export class MemoryRepo implements Repo {
   }
 
   async listDoseLogs(profileId: string, sinceIso: string) {
-    return [...this.bucket(profileId).logs.values()]
-      .filter((l) => l.scheduledFor >= sinceIso)
-      .map((l) => ({ ...l }));
+    return [...this.bucket(profileId).logs.values()].filter((l) => l.scheduledFor >= sinceIso).map((l) => ({ ...l }));
   }
 
   async logDose(profileId: string, input: Omit<DoseLog, "id">) {

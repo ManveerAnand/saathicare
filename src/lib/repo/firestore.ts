@@ -9,7 +9,14 @@ import {
 import { createHash } from "node:crypto";
 import type { Appointment, DoseLog, Medication, Permissions, Profile } from "../domain/types";
 import { newId } from "./ids";
-import { compareMedications, doseLogId, type AppointmentInput, type MedicationInput, type NewProfile, type Repo } from "./types";
+import {
+  compareMedications,
+  doseLogId,
+  type AppointmentInput,
+  type MedicationInput,
+  type NewProfile,
+  type Repo,
+} from "./types";
 
 /**
  * Firestore layout:
@@ -24,8 +31,7 @@ export class FirestoreRepo implements Repo {
 
   /** Builds the repo from FIREBASE_SERVICE_ACCOUNT (the service-account JSON, as one line). */
   static fromEnv(json: string): FirestoreRepo {
-    const app =
-      getApps()[0] ?? initializeApp({ credential: cert(JSON.parse(json) as Record<string, string>) });
+    const app = getApps()[0] ?? initializeApp({ credential: cert(JSON.parse(json) as Record<string, string>) });
     return new FirestoreRepo(getFirestore(app));
   }
 
@@ -79,8 +85,7 @@ export class FirestoreRepo implements Repo {
     const ref = this.profile(profileId).collection("medications").doc(id);
     return this.db.runTransaction(async (tx: Transaction) => {
       const previous = (await tx.get(ref)).data() as Medication | undefined;
-      const keepExplanation =
-        previous?.explanation && previous.name === input.name && previous.dosage === input.dosage;
+      const keepExplanation = previous?.explanation && previous.name === input.name && previous.dosage === input.dosage;
       const med: Medication = {
         ...input,
         id,
@@ -103,10 +108,7 @@ export class FirestoreRepo implements Repo {
   }
 
   async listDoseLogs(profileId: string, sinceIso: string) {
-    const snap = await this.profile(profileId)
-      .collection("doseLogs")
-      .where("scheduledFor", ">=", sinceIso)
-      .get();
+    const snap = await this.profile(profileId).collection("doseLogs").where("scheduledFor", ">=", sinceIso).get();
     return snap.docs.map((d: QueryDocumentSnapshot) => d.data() as DoseLog);
   }
 

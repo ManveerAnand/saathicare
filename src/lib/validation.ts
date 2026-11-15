@@ -25,10 +25,10 @@ export const createProfileSchema = z
     familyPasscode: passcodeSchema,
     contacts: z.array(contactSchema).max(10).default([]),
   })
-  .refine(
-    (v) => new Set([v.elderPasscode, v.caretakerPasscode, v.familyPasscode]).size === 3,
-    { message: "Each role needs a different passcode", path: ["familyPasscode"] },
-  );
+  .refine((v) => new Set([v.elderPasscode, v.caretakerPasscode, v.familyPasscode]).size === 3, {
+    message: "Each role needs a different passcode",
+    path: ["familyPasscode"],
+  });
 
 export const loginSchema = z.object({
   profileId: z.string().regex(/^[a-z0-9]{6,32}$/, "Check the care code"),
@@ -40,10 +40,11 @@ export const medicationSchema = z
     name: text(80),
     dosage: text(60),
     instructions: optionalText(300),
-    times: z.array(localTime).min(1).max(8).refine(
-      (times) => new Set(times).size === times.length,
-      "Use each dose time only once",
-    ),
+    times: z
+      .array(localTime)
+      .min(1)
+      .max(8)
+      .refine((times) => new Set(times).size === times.length, "Use each dose time only once"),
     startDate: localDate,
     endDate: localDate.optional(),
   })
@@ -70,7 +71,11 @@ export const doseLogSchema = z.object({
 export const permissionsSchema = z.object({
   caretakerCanEdit: z.boolean(),
   familyCanEdit: z.boolean(),
-  escalateAfterMinutes: z.number().int().min(0).max(24 * 60),
+  escalateAfterMinutes: z
+    .number()
+    .int()
+    .min(0)
+    .max(24 * 60),
 });
 
 /** Medications Gemini reads from a prescription photo. Validated before anyone sees them. */

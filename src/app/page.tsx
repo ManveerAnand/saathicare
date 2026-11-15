@@ -19,8 +19,8 @@ export default async function Home() {
             Care that keeps <em>Amma</em> in charge.
           </h1>
           <p className="lead">
-            One shared plan for medicines, doses and doctor visits. Everyone stays informed, and the
-            elder decides who can change what, and when family is told about a missed dose.
+            One shared plan for medicines, doses and doctor visits. Everyone stays informed, and the elder decides who
+            can change what, and when family is told about a missed dose.
           </p>
           <div className="demo-choices" aria-label="Try the live demo">
             <form action={enterDemo}>
@@ -104,7 +104,10 @@ export default async function Home() {
         </div>
         <div className="card">
           <h2>New here?</h2>
-          <p className="lead">Set up a circle together with the elder in about a minute. You choose three passcodes: one each for the elder, caretakers and family.</p>
+          <p className="lead">
+            Set up a circle together with the elder in about a minute. You choose three passcodes: one each for the
+            elder, caretakers and family.
+          </p>
           <Link className="button big" href="/setup">
             Start a care circle
           </Link>
@@ -135,7 +138,17 @@ function Feature({ title, icon, children }: { title: string; icon: keyof typeof 
   return (
     <article className="card feature">
       <div className="icon">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <svg
+          width="26"
+          height="26"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
           {ICONS[icon]}
         </svg>
       </div>

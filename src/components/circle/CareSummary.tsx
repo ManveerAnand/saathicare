@@ -23,7 +23,9 @@ export function CareSummary({ profile, role, now, doses, week, nextAppointment }
     <section className="card summary" aria-labelledby="summary">
       <ProgressRing done={done} total={doses.length} />
       <div>
-        <p className="eyebrow">{formatInZone(now.toISOString(), tz, { weekday: "long", day: "numeric", month: "long" })}</p>
+        <p className="eyebrow">
+          {formatInZone(now.toISOString(), tz, { weekday: "long", day: "numeric", month: "long" })}
+        </p>
         <h1 id="summary">{role === "elder" ? `${greeting(now, tz)}, ${firstName}` : `How is ${firstName} doing?`}</h1>
         <p className="lead flush">
           {doses.length === 0

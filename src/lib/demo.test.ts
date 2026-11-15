@@ -65,7 +65,12 @@ describe("ensureDemoCircle", () => {
     const repo = new MemoryRepo();
     await ensureDemoCircle(repo, hashes, now);
     const extra = await repo.saveMedication(DEMO_PROFILE_ID, {
-      name: "Vitamin D", dosage: "1000 IU", instructions: "", times: ["10:00"], startDate: "2026-11-15", updatedBy: "elder",
+      name: "Vitamin D",
+      dosage: "1000 IU",
+      instructions: "",
+      times: ["10:00"],
+      startDate: "2026-11-15",
+      updatedBy: "elder",
     });
     const [dose] = (await repo.listDoseLogs(DEMO_PROFILE_ID, "2026-11-15T00:00:00.000Z")).slice(0, 1);
     await repo.logDose(DEMO_PROFILE_ID, { ...dose, status: "skipped", loggedBy: "family" });
@@ -81,7 +86,11 @@ describe("ensureDemoCircle", () => {
   it("restores the default permissions on every entry", async () => {
     const repo = new MemoryRepo();
     await ensureDemoCircle(repo, hashes, now);
-    await repo.updatePermissions(DEMO_PROFILE_ID, { caretakerCanEdit: false, familyCanEdit: true, escalateAfterMinutes: 120 });
+    await repo.updatePermissions(DEMO_PROFILE_ID, {
+      caretakerCanEdit: false,
+      familyCanEdit: true,
+      escalateAfterMinutes: 120,
+    });
 
     const profile = await ensureDemoCircle(repo, hashes, now);
     const expected = { caretakerCanEdit: true, familyCanEdit: false, escalateAfterMinutes: 30 };
@@ -93,10 +102,20 @@ describe("ensureDemoCircle", () => {
     const repo = new MemoryRepo();
     await ensureDemoCircle(repo, hashes, now);
     await repo.saveMedication(DEMO_PROFILE_ID, {
-      name: "Vitamin D", dosage: "1000 IU", instructions: "", times: ["10:00"], startDate: "2026-11-15", updatedBy: "elder",
+      name: "Vitamin D",
+      dosage: "1000 IU",
+      instructions: "",
+      times: ["10:00"],
+      startDate: "2026-11-15",
+      updatedBy: "elder",
     });
-    for (const a of await repo.listAppointments(DEMO_PROFILE_ID, now.toISOString())) await repo.deleteAppointment(DEMO_PROFILE_ID, a.id);
-    await repo.updatePermissions(DEMO_PROFILE_ID, { caretakerCanEdit: false, familyCanEdit: true, escalateAfterMinutes: 120 });
+    for (const a of await repo.listAppointments(DEMO_PROFILE_ID, now.toISOString()))
+      await repo.deleteAppointment(DEMO_PROFILE_ID, a.id);
+    await repo.updatePermissions(DEMO_PROFILE_ID, {
+      caretakerCanEdit: false,
+      familyCanEdit: true,
+      escalateAfterMinutes: 120,
+    });
 
     await resetDemoCircle(repo, DEMO_PROFILE_ID, hashes, now);
     const meds = await repo.listMedications(DEMO_PROFILE_ID);
@@ -111,7 +130,12 @@ describe("ensureDemoCircle", () => {
     const repo = new MemoryRepo();
     const real = await repo.ensureProfile(makeProfile({ id: "real1234" }));
     await repo.saveMedication(real.id, {
-      name: "Metformin", dosage: "500 mg", instructions: "", times: ["08:00"], startDate: "2026-11-01", updatedBy: "elder",
+      name: "Metformin",
+      dosage: "500 mg",
+      instructions: "",
+      times: ["08:00"],
+      startDate: "2026-11-01",
+      updatedBy: "elder",
     });
 
     expect(canResetDemo(DEMO_PROFILE_ID)).toBe(true);
