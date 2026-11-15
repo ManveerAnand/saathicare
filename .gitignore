@@ -43,3 +43,7 @@ next-env.d.ts
 
 # local tooling
 .claude/
+
+# service-account keys must never be committed
+*-firebase-adminsdk-*.json
+serviceAccount*.json
