@@ -2,6 +2,9 @@
 
 **One shared care plan for an elder, their caretakers and their family, with the elder in charge.**
 
+**Live demo: https://saathicare-six.vercel.app** · Start a care circle in under a minute, no
+account needed.
+
 SaathiCare (*saathi* means "companion" in Hindi) keeps medicines, doses and doctor visits in one
 place. Everyone signs in to the same care circle with their own passcode, and email reminders make
 sure doses and appointments are not forgotten. It goes beyond a reminder app in three ways:
