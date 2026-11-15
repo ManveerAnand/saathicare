@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { explain, logDose, removeAppointment, removeMedication, signOut } from "@/app/actions";
+import { explain, logDose, removeAppointment, removeMedication, resetDemo, signOut } from "@/app/actions";
 import { AppointmentForm, MedicationForm, PermissionsForm, ScanForm } from "@/components/forms";
 import { ProgressRing } from "@/components/ProgressRing";
 import { geminiConfigured } from "@/lib/ai/gemini";
@@ -80,10 +80,18 @@ export default async function CirclePage({ searchParams }: PageProps<"/circle">)
         </p>
       )}
       {profile.isDemo && (
-        <p className="notice info" role="note">
-          You are exploring the shared demo as <strong>{ROLE_LABEL[session.role].toLowerCase()}</strong>. Try marking a dose,
-          or sign out and enter as another role to see how the view changes.
-        </p>
+        <div className="notice info" role="note">
+          <p style={{ margin: 0 }}>
+            You are exploring the shared demo as <strong>{ROLE_LABEL[session.role].toLowerCase()}</strong>. Try marking a dose,
+            or sign out and enter as another role to see how the view changes.{" "}
+            <Link href="/tour">Take the 2-minute judges&apos; tour</Link>
+          </p>
+          <form action={resetDemo} style={{ marginTop: "0.5rem" }}>
+            <button type="submit" className="secondary">
+              Reset demo data
+            </button>
+          </form>
+        </div>
       )}
 
       <section className="card summary" aria-labelledby="summary">

@@ -2,12 +2,46 @@
 
 **One shared care plan for an elder, their caretakers and their family, with the elder in charge.**
 
-**Live demo: https://saathicare-six.vercel.app** · One click opens a sample care circle as the
-elder, family or a caretaker, with a month of history. No sign-up needed.
+| 🌐 Live app | 🧭 Guided tour (2 min) | 🧪 Quality |
+|---|---|---|
+| **[saathicare-six.vercel.app](https://saathicare-six.vercel.app)** | **[saathicare-six.vercel.app/tour](https://saathicare-six.vercel.app/tour)** | 80+ automated tests · CI on every push |
+
+> **No sign-up needed.** On the home page, press **"Try the demo as the elder"** (or as family or
+> caretaker). You land in the shared care circle of Kamala Devi, 72, with a month of real-looking
+> history. The [guided tour](https://saathicare-six.vercel.app/tour) walks through every feature
+> step by step.
+
+![SaathiCare home page: "Care that keeps Amma in charge", with demo buttons and a preview of the dashboard](docs/screenshots/landing.jpg)
+
+## Try it in 2 minutes
+
+1. **As the elder:** open the [home page](https://saathicare-six.vercel.app) and press **Try the
+   demo as the elder**. The ring shows today's doses; the **Care Assistant** warns that a dose was
+   missed and the next one is soon (*do not take two together*). Press **✓ Taken** and watch the
+   day update. At the bottom, **Your choices** is where the elder decides who may edit and when
+   family is told about a missed dose.
+2. **As family:** press **Sign out**, then **…as family**. The page now asks *"How is Kamala
+   doing?"*, and there are no edit forms, because the elder has not allowed family to edit. Family
+   can still confirm a dose.
+3. **As a caretaker:** sign in as caretaker. Under **Medicines**, try **Add from a prescription
+   photo** (Gemini drafts each medicine; nothing is saved until you confirm) or **What is this
+   for?** (a plain-language explanation for an elderly reader).
+4. **Before a doctor's visit:** in **Upcoming visits**, press **Prepare for the doctor** for a
+   printable 30-day summary with missed-dose patterns and questions to ask.
+5. **Accessibility:** use **A+ / A++** at the top right; the whole app scales. Try it on a phone.
+
+If other visitors have changed the shared demo, the **Reset demo data** button on the dashboard
+restores it.
+
+| The day at a glance | Ready for the doctor |
+|---|---|
+| ![Dashboard: a ring showing 4 of 7 doses today, the Care Assistant, and the morning timeline](docs/screenshots/dashboard.jpg) | ![Doctor visit summary: 95% of doses taken, a table per medicine with the hardest dose time, and questions to ask](docs/screenshots/visit-summary.jpg) |
+
+## Why it is different
 
 SaathiCare (*saathi* means "companion" in Hindi) keeps medicines, doses and doctor visits in one
 place. Everyone signs in to the same care circle with their own passcode, and email reminders make
-sure doses and appointments are not forgotten. It goes beyond a reminder app in three ways:
+sure doses and appointments are not forgotten. It goes beyond a reminder app in four ways:
 
 1. **The elder stays in charge.** The elder decides who may change the care plan, and when they
    miss a dose, they are reminded first. Family and caretakers are told only after a delay the

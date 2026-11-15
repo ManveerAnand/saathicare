@@ -1,10 +1,11 @@
 import { dosesForDate } from "./domain/schedule";
 import { addDays, localDate, zonedToUtc } from "./domain/time";
-import type { Medication, Profile } from "./domain/types";
+import type { Medication, Permissions, Profile } from "./domain/types";
 import type { Repo } from "./repo/types";
 
 export const DEMO_PROFILE_ID = "democircle";
 const TZ = "Asia/Kolkata";
+const DEMO_PERMISSIONS: Permissions = { caretakerCanEdit: true, familyCanEdit: false, escalateAfterMinutes: 30 };
 
 /** Doses left unlogged in the past week, so the trend and Care Assistant have something to say. */
 const MISSED: ReadonlyArray<[daysAgo: number, medName: string, time: string]> = [
@@ -32,7 +33,8 @@ function demoMeds(today: string): Omit<Medication, "id" | "active" | "updatedAt"
 /**
  * Makes sure the public demo circle exists and looks lived-in: four medicines, a week of
  * history with a few missed doses, and two upcoming appointments. Safe to call on every visit:
- * it only fills in what is missing, so a visitor's own changes today are kept.
+ * it only fills in what is missing, so a visitor's own changes today are kept. Default medicines
+ * a visitor stopped come back and permissions are reset, so the demo cannot be left broken.
  */
 export async function ensureDemoCircle(repo: Repo, hashes: Profile["passcodeHashes"], now = new Date()): Promise<Profile> {
   const profile = await repo.ensureProfile({
@@ -44,17 +46,20 @@ export async function ensureDemoCircle(repo: Repo, hashes: Profile["passcodeHash
       { name: "Asha (caretaker)", email: "asha.demo@example.com", role: "caretaker" },
       { name: "Ravi (son)", email: "ravi.demo@example.com", role: "family" },
     ],
-    permissions: { caretakerCanEdit: true, familyCanEdit: false, escalateAfterMinutes: 30 },
+    permissions: DEMO_PERMISSIONS,
     passcodeHashes: hashes,
     createdAt: now.toISOString(),
     isDemo: true,
   });
 
+  await repo.updatePermissions(profile.id, DEMO_PERMISSIONS);
+
   const today = localDate(now, TZ);
   let meds = await repo.listMedications(profile.id);
-  if (meds.length === 0) {
-    meds = await Promise.all(demoMeds(today).map((m) => repo.saveMedication(profile.id, m)));
-  }
+  // Fixed ids keep two visitors entering at once from creating duplicates.
+  const missing = demoMeds(today).filter((d) => !meds.some((m) => m.name === d.name));
+  const created = await Promise.all(missing.map((m) => repo.saveMedication(profile.id, { ...m, id: `demo-${m.name.toLowerCase()}` })));
+  meds = [...meds, ...created];
 
   // Fill the past week, including today's doses that are already overdue (only where nothing
   // is logged yet), leaving the few MISSED ones so the trend and Care Assistant have a story.
@@ -102,5 +107,17 @@ export async function ensureDemoCircle(repo: Repo, hashes: Profile["passcodeHash
     ]);
   }
 
-  return profile;
+  return { ...profile, permissions: { ...DEMO_PERMISSIONS } };
+}
+
+/** Only the public demo may be wiped; real circles must never reach clearCareData. */
+export function canResetDemo(profileId: string): boolean {
+  return profileId === DEMO_PROFILE_ID;
+}
+
+/** Wipes the demo circle's care data and re-seeds it, keeping the profile (and so every session). */
+export async function resetDemoCircle(repo: Repo, profileId: string, hashes: Profile["passcodeHashes"], now = new Date()): Promise<Profile> {
+  if (!canResetDemo(profileId)) throw new Error("Only the demo circle can be reset.");
+  await repo.clearCareData(profileId);
+  return ensureDemoCircle(repo, hashes, now);
 }

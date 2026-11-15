@@ -1,6 +1,6 @@
 import type { Appointment, DoseLog, Medication, Profile } from "../domain/types";
 import { newId } from "./ids";
-import { doseLogId, type Repo } from "./types";
+import { compareMedications, doseLogId, type Repo } from "./types";
 
 interface Bucket {
   meds: Map<string, Medication>;
@@ -49,7 +49,10 @@ export class MemoryRepo implements Repo {
   }
 
   async listMedications(profileId: string) {
-    return [...this.bucket(profileId).meds.values()].filter((m) => m.active).map((m) => structuredClone(m));
+    return [...this.bucket(profileId).meds.values()]
+      .filter((m) => m.active)
+      .sort(compareMedications)
+      .map((m) => structuredClone(m));
   }
 
   async getMedication(profileId: string, id: string) {
@@ -123,5 +126,9 @@ export class MemoryRepo implements Repo {
   async markRemindersSent(profileId: string, keys: string[]) {
     const sent = this.bucket(profileId).sent;
     keys.forEach((k) => sent.add(k));
+  }
+
+  async clearCareData(profileId: string) {
+    this.buckets.delete(profileId);
   }
 }

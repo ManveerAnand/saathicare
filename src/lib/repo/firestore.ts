@@ -9,7 +9,7 @@ import {
 import { createHash } from "node:crypto";
 import type { Appointment, DoseLog, Medication, Permissions, Profile } from "../domain/types";
 import { newId } from "./ids";
-import { doseLogId, type AppointmentInput, type MedicationInput, type NewProfile, type Repo } from "./types";
+import { compareMedications, doseLogId, type AppointmentInput, type MedicationInput, type NewProfile, type Repo } from "./types";
 
 /**
  * Firestore layout:
@@ -65,7 +65,8 @@ export class FirestoreRepo implements Repo {
 
   async listMedications(profileId: string) {
     const snap = await this.profile(profileId).collection("medications").where("active", "==", true).get();
-    return snap.docs.map((d: QueryDocumentSnapshot) => d.data() as Medication);
+    // Firestore returns no fixed order, so sort here.
+    return snap.docs.map((d: QueryDocumentSnapshot) => d.data() as Medication).sort(compareMedications);
   }
 
   async getMedication(profileId: string, id: string) {
@@ -154,5 +155,10 @@ export class FirestoreRepo implements Repo {
     const at = new Date().toISOString();
     keys.forEach((key) => batch.set(this.sentRef(profileId, key), { key, at }));
     await batch.commit();
+  }
+
+  async clearCareData(profileId: string) {
+    const names = ["medications", "doseLogs", "appointments", "sentReminders"];
+    await Promise.all(names.map((n) => this.db.recursiveDelete(this.profile(profileId).collection(n))));
   }
 }

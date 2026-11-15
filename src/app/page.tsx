@@ -39,6 +39,11 @@ export default async function Home() {
           <p className="muted">
             No sign-up: the demo circle is shared sample data. Or <Link href="/setup">start your own circle</Link>.
           </p>
+          <p>
+            <Link className="tour-cta" href="/tour">
+              Judging? Take the 2-minute guided tour →
+            </Link>
+          </p>
         </div>
 
         <div className="preview" aria-hidden="true">

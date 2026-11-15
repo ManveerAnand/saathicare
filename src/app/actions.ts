@@ -2,7 +2,7 @@
 
 import { randomBytes } from "node:crypto";
 import { cookies, headers } from "next/headers";
-import { ensureDemoCircle } from "@/lib/demo";
+import { canResetDemo, ensureDemoCircle, resetDemoCircle } from "@/lib/demo";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { hashPasscode, verifyPasscode } from "@/lib/auth/passcode";
@@ -117,6 +117,17 @@ export async function enterDemo(form: FormData): Promise<void> {
   const hashes = await Promise.all(ROLES.map(() => hashPasscode(randomBytes(16).toString("hex"))));
   const profile = await ensureDemoCircle(repo(), { elder: hashes[0], caretaker: hashes[1], family: hashes[2] });
   await startSession(profile.id, role);
+  redirect("/circle");
+}
+
+/** Clears visitor changes in the public demo and re-seeds it. Never touches a real circle. */
+export async function resetDemo(): Promise<void> {
+  const session = await requireSession();
+  if (!canResetDemo(session.profileId)) return;
+  const profile = await repo().getProfile(session.profileId);
+  if (!profile) redirect("/");
+  await resetDemoCircle(repo(), session.profileId, profile.passcodeHashes);
+  revalidatePath("/circle");
   redirect("/circle");
 }
 

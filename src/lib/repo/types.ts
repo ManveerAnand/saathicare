@@ -34,6 +34,15 @@ export interface Repo {
   /** Which of these reminder keys were already sent. */
   sentReminderKeys(profileId: string, keys: string[]): Promise<Set<string>>;
   markRemindersSent(profileId: string, keys: string[]): Promise<void>;
+
+  /** Deletes all medicines, dose logs, appointments and sent-reminder records; keeps the profile. */
+  clearCareData(profileId: string): Promise<void>;
+}
+
+/** Medicines listed by name (case-insensitive), then id, so every page shows the same order. */
+export function compareMedications(a: Medication, b: Medication): number {
+  const [x, y] = [a.name.toLowerCase(), b.name.toLowerCase()];
+  return x < y ? -1 : x > y ? 1 : a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
 }
 
 /** Firestore document ids cannot contain "/", and ":" and "." read badly in the console. */

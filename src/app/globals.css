@@ -251,6 +251,17 @@ details > summary::before { content: "+"; display: inline-grid; place-items: cen
 details[open] > summary::before { content: "−"; }
 details > summary::-webkit-details-marker { display: none; }
 
+/* Judges' tour */
+.tour-steps { list-style: none; padding: 0; margin: 1.5rem 0; display: grid; gap: 1rem; }
+.tour-step { display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-items: start; margin: 0; }
+.tour-step ul { margin: 0 0 0.75rem; padding-left: 1.2rem; display: grid; gap: 0.35rem; }
+.tour-number {
+  width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--brand); color: var(--brand-ink); font-family: var(--font-display), serif; font-weight: 700; font-size: 1.3rem;
+}
+.tour-why { background: var(--bg-tint); border-radius: var(--radius-sm); padding: 0.6rem 0.8rem; }
+.tour-cta { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; }
+
 /* Doctor visit summary */
 .visit-head { margin: 1rem 0; }
 .table-wrap { overflow-x: auto; }
