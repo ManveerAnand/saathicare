@@ -6,6 +6,8 @@
 | ------------------------------------------------------------------ | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | **[saathicare-six.vercel.app](https://saathicare-six.vercel.app)** | **[saathicare-six.vercel.app/tour](https://saathicare-six.vercel.app/tour)** | 136 automated tests · [CI on every push](https://github.com/ManveerAnand/saathicare/actions/workflows/ci.yml) |
 
+[Watch the 3-minute live walkthrough on YouTube](https://youtu.be/C2gg__Ma_Rk).
+
 > **No sign-up needed.** On the home page, press **"Try the demo as the elder"** (or as family or
 > caretaker). You land in the shared care circle of Kamala Devi, 72, with a month of real-looking
 > history. The [guided tour](https://saathicare-six.vercel.app/tour) walks through every feature
