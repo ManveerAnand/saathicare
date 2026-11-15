@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { explainMedication, extractMedications, geminiConfigured } from "@/lib/ai/gemini";
+import { logError } from "@/lib/log";
 import { repo } from "@/lib/server";
 import { requireEditor, requireSession } from "./session";
 import type { ScanState } from "./types";
@@ -20,7 +21,7 @@ export async function explain(form: FormData): Promise<void> {
     if (text) await repo().setExplanation(session.profileId, id, text);
   } catch (err) {
     // A slow or failed answer is not saved; the button stays so the person can try again.
-    console.error("[explain] Gemini request failed:", (err as Error).message);
+    logError("explain", err);
   }
   revalidatePath("/circle");
 }
@@ -42,7 +43,7 @@ export async function scanPrescription(_prev: ScanState, form: FormData): Promis
       ? { drafts, ok: `Found ${drafts.length}. Check each one, then save it.` }
       : { error: "No medicines could be read clearly. Try a sharper photo, or add them by hand." };
   } catch (err) {
-    console.error("[scan] Gemini request failed:", (err as Error).message);
+    logError("scan", err);
     return { error: "Reading the photo failed. Please try again or add medicines by hand." };
   }
 }

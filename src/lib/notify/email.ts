@@ -1,5 +1,6 @@
 import "server-only";
 import nodemailer, { type Transporter } from "nodemailer";
+import { logInfo } from "../log";
 
 export interface Mailer {
   send(to: string[], subject: string, text: string): Promise<void>;
@@ -18,9 +19,16 @@ export function gmailMailer(user: string, appPassword: string): Mailer {
   };
 }
 
-/** For local runs without credentials: prints instead of sending. */
+const subjectTypes = [
+  ["Reminder: ", "Upcoming dose reminder"],
+  ["Did you take ", "Missed dose reminder"],
+  ["Appointment with ", "Appointment reminder"],
+];
+
+/** Prints the subject with private details removed for runs without mail credentials. */
 export const consoleMailer: Mailer = {
-  async send(to, subject) {
-    console.info(`[email] to ${to.length} recipient(s): ${subject}`);
+  async send(_to, subject) {
+    const subjectType = subjectTypes.find(([prefix]) => subject.startsWith(prefix));
+    logInfo("email", subjectType?.[1] ?? "Care circle reminder");
   },
 };

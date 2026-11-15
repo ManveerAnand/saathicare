@@ -1,5 +1,6 @@
 import { remindersDue } from "./domain/reminders";
 import { addDays, localDate, zonedToUtc } from "./domain/time";
+import { logError } from "./log";
 import type { Mailer } from "./notify/email";
 import type { Repo } from "./repo/types";
 
@@ -42,7 +43,7 @@ export async function runReminderJob(repo: Repo, mailer: Mailer, now = new Date(
         delivered.push(r.key);
       } catch (err) {
         failed += 1;
-        console.error(`[reminders] send failed for profile ${id}:`, (err as Error).message);
+        logError("reminders", err);
       }
     }
     if (delivered.length) await repo.markRemindersSent(id, delivered);

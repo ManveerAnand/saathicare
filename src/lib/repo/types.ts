@@ -45,7 +45,7 @@ export function compareMedications(a: Medication, b: Medication): number {
   return x < y ? -1 : x > y ? 1 : a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
 }
 
-/** Firestore document ids cannot contain "/", and ":" and "." read badly in the console. */
+/** Builds a stable document ID from a medicine and scheduled instant without slashes. */
 export function doseLogId(medicationId: string, scheduledFor: string): string {
   return `${medicationId}_${scheduledFor.replace(/[^0-9A-Za-z]/g, "")}`;
 }
