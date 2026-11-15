@@ -1,10 +1,10 @@
-﻿# SaathiCare
+# SaathiCare
 
 **One shared care plan for an elder, their caretakers and their family, with the elder in charge.**
 
-| ðŸŒ Live app                                                       | ðŸ§­ Guided tour (2 min)                                                     | ðŸ§ª Quality                            |
-| ------------------------------------------------------------------ | ---------------------------------------------------------------------------- | --------------------------------------- |
-| **[saathicare-six.vercel.app](https://saathicare-six.vercel.app)** | **[saathicare-six.vercel.app/tour](https://saathicare-six.vercel.app/tour)** | 80+ automated tests Â· CI on every push |
+| 🌐 Live app                                                        | 🧭 Guided tour (2 min)                                                       | 🧪 Quality                                                                                                    |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| **[saathicare-six.vercel.app](https://saathicare-six.vercel.app)** | **[saathicare-six.vercel.app/tour](https://saathicare-six.vercel.app/tour)** | 136 automated tests · [CI on every push](https://github.com/ManveerAnand/saathicare/actions/workflows/ci.yml) |
 
 > **No sign-up needed.** On the home page, press **"Try the demo as the elder"** (or as family or
 > caretaker). You land in the shared care circle of Kamala Devi, 72, with a month of real-looking
@@ -17,10 +17,10 @@
 
 1. **As the elder:** open the [home page](https://saathicare-six.vercel.app) and press **Try the
    demo as the elder**. The ring shows today's doses; the **Care Assistant** warns that a dose was
-   missed and the next one is soon (_do not take two together_). Press **âœ“ Taken** and watch the
+   missed and the next one is soon (_do not take two together_). Press **✓ Taken** and watch the
    day update. At the bottom, **Your choices** is where the elder decides who may edit and when
    family is told about a missed dose.
-2. **As family:** press **Sign out**, then **â€¦as family**. The page now asks _"How is Kamala
+2. **As family:** press **Sign out**, then **…as family**. The page now asks _"How is Kamala
    doing?"_, and there are no edit forms, because the elder has not allowed family to edit. Family
    can still confirm a dose.
 3. **As a caretaker:** sign in as caretaker. Under **Medicines**, try **Add from a prescription
@@ -114,13 +114,13 @@ so they are predictable and testable.
 
 ```
 Browser (server-rendered pages, small client forms)
-   â”‚  Server Actions: every input checked with zod, every change checked against the role
-   â–¼
-Next.js on Vercel â”€â”€â–º Firestore (profiles, medications, dose logs, appointments)
-   â”‚              â””â”€â–º Gemini (prescription photo â†’ draft medicines; explanations, cached)
-   â–¼
-/api/cron/reminders  â—„â”€â”€ GitHub Actions every 15 min (Bearer CRON_SECRET)
-   â””â”€â–º Gmail SMTP: elder first, then caretakers and family after the elder's chosen delay
+   │  Server Actions: every input checked with zod, every change checked against the role
+   ▼
+Next.js on Vercel ──► Firestore (profiles, medications, dose logs, appointments)
+   │              └─► Gemini (prescription photo → draft medicines; explanations, cached)
+   ▼
+/api/cron/reminders  ◄── GitHub Actions every 15 min (Bearer CRON_SECRET)
+   └─► Gmail SMTP: elder first, then caretakers and family after the elder's chosen delay
 ```
 
 The rules (scheduling, adherence, reminders, permissions) are plain TypeScript functions in
@@ -138,6 +138,11 @@ src/lib/domain/         Pure rules: schedules, adherence, reminders, assistant, 
 src/lib/auth/           Passcode hashing, signed session tokens, sign-in rate limit
 src/lib/repo/           Storage behind one interface: Firestore and in-memory versions
 src/lib/ai/             Gemini calls (prescription reading, medicine explanations)
+src/lib/env.ts          Validated server configuration
+src/lib/log.ts          Scoped logs that omit private error details
+src/lib/auth/cron.ts    Constant-time check for the reminder endpoint's bearer token
+src/lib/ai/parse.ts     Schema validation of Gemini prescription drafts
+src/lib/ai/image.ts     Image signature checks for prescription uploads
 src/lib/presentation.ts Display helpers shared by the pages (labels, greeting, date formats)
 ```
 
@@ -192,13 +197,18 @@ To use real services, copy `.env.example` to `.env.local` and fill it in.
 ## Tests
 
 ```bash
-npm test          # 95 tests: time zones, schedules, adherence, reminders, the Care Assistant,
-                  # the visit summary, auth, input validation, the reminder job and the demo seed
-npm run check     # lint + type check + tests
+npm test             # 136 automated tests across 19 files
 ```
 
-CI runs lint, the type check, the tests and a production build on every push
-(`.github/workflows/ci.yml`).
+### Development
+
+```bash
+npm run format        # format tracked source and documentation
+npm run check         # check formatting, lint, check types and run tests
+npm run test:coverage # measure coverage for the instrumented library code
+```
+
+[CI](.github/workflows/ci.yml) checks formatting, lint, types and coverage thresholds, then runs a production build on every push.
 
 ## Deploy
 
