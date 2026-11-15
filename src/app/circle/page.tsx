@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { explain, logDose, removeAppointment, removeMedication, signOut } from "@/app/actions";
 import { AppointmentForm, MedicationForm, PermissionsForm, ScanForm } from "@/components/forms";
 import { geminiConfigured } from "@/lib/ai/gemini";
+import { careInsights } from "@/lib/domain/assistant";
 import { canEdit, canManageAccess } from "@/lib/domain/permissions";
 import { adherence, dosesForDate } from "@/lib/domain/schedule";
 import { addDays, localDate, zonedToUtc } from "@/lib/domain/time";
@@ -42,6 +43,7 @@ export default async function CirclePage({ searchParams }: PageProps<"/circle">)
   const isElder = session.role === "elder";
   const welcome = (await searchParams).welcome;
   const attention = doses.filter((d) => d.status === "due" || d.status === "missed").length;
+  const insights = careInsights({ profile, viewer: session.role, todaysDoses: doses, meds, week, appointments, now });
 
   return (
     <div className={isElder ? "elder-mode" : undefined}>
@@ -61,6 +63,20 @@ export default async function CirclePage({ searchParams }: PageProps<"/circle">)
         <p className="notice ok" role="status">
           Care circle created. Share the care code <strong>{profile.id}</strong> and each person&apos;s passcode.
         </p>
+      )}
+
+      {insights.length > 0 && (
+        <section className="card" aria-labelledby="assistant">
+          <h2 id="assistant">Care Assistant</h2>
+          <ul className="insights">
+            {insights.map((i) => (
+              <li key={i.message} className={`insight ${i.level}`}>
+                <span className="sr-only">{i.level}: </span>
+                {i.message}
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       <section className="card" aria-labelledby="today">

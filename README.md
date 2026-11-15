@@ -16,6 +16,44 @@ sure doses and appointments are not forgotten. It goes beyond a reminder app in 
 
 Built for the Catalyst Solo AI Hackathon (PromptWars x Catalyst, by Makers Need More).
 
+## Chosen vertical
+
+**Healthcare: Elderly Care & Medication Management.** The persona is an elder who manages
+several medicines and doctor visits, supported by a caretaker and by family who may live
+elsewhere. Every decision in the app is made around that elder.
+
+## Approach and logic
+
+The app is a **smart, dynamic assistant**: it makes decisions from the user's context (who is
+viewing, the time in the elder's time zone, what was taken, the elder's own preferences) rather
+than only storing a list. The decisions are plain, tested functions in `src/lib/domain`:
+
+| Decision | Context it uses | Logic | File |
+|---|---|---|---|
+| Status of each dose | Time now in the elder's time zone, dose logs | Due from 30 min before; missed 60 min after with no log; otherwise later, taken or skipped | `schedule.ts` |
+| Who gets an email, and when | Dose status, the elder's escalation delay, appointment time | The elder is reminded 30 min before and again when a dose is missed; caretakers and family only after the elder's delay; everyone 24 h before an appointment; never the same email twice | `reminders.ts` |
+| Care Assistant guidance | Today's doses, 7-day adherence, appointments, course end dates, viewer's role | Missed dose with the next one under 4 h away: warn against doubling up. Missed otherwise: prompt to log it or ask the doctor. Adherence under 80% across at least 3 doses: suggest a pill box or a check-in. Appointment within 48 h: what to bring. Course ending within 3 days: check with the doctor. Speaks to the elder as "you" and to others by name | `assistant.ts` |
+| Who may change the plan | Role, the elder's choices | The elder always can; caretakers and family only if the elder allows; only the elder changes these rights | `permissions.ts` |
+| Adherence | Logs over 7 days | Taken out of decided doses (taken, missed, skipped); upcoming doses are not counted against anyone | `schedule.ts` |
+
+AI (Gemini) is used where judgment on messy input helps: reading prescription photos and
+explaining medicines. Safety-critical rules (timing, escalation, permissions) are deterministic,
+so they are predictable and testable.
+
+## Assumptions
+
+- One care circle per elder, shared through a care code and three role passcodes. Separate
+  user accounts were deliberately left out, so elders never need an email login.
+- Dose times are fixed daily times in the elder's time zone. "As needed" medicines and weekly
+  schedules are not modelled yet.
+- A dose counts as missed 60 minutes after its time if nobody has logged it.
+- Email is the reminder channel, as the problem asks; SMS or WhatsApp could be added behind the
+  same `Mailer` interface.
+- The app gives no medical advice. The Care Assistant and Gemini explanations always point to
+  the doctor for any change.
+- The reminder job runs every 15 minutes, so an email can arrive up to 15 minutes after its
+  ideal time.
+
 ## Problem statement, mapped to the code
 
 | The problem asks for | How SaathiCare does it | Where |
@@ -28,6 +66,7 @@ Built for the Catalyst Solo AI Hackathon (PromptWars x Catalyst, by Makers Need 
 | Email reminders for upcoming doses, missed doses and appointments | A reminder job every 15 minutes, idempotent, so each email is sent once | `src/lib/domain/reminders.ts`, `src/lib/reminderJob.ts` |
 | Smarter and more accessible | Gemini prescription reading, plain-language explanations, a large-text elder view | `src/lib/ai/gemini.ts`, `src/app/globals.css` |
 | Collaborative and reliable | Anyone in the circle can confirm a dose; reminders escalate to others | `src/lib/domain/reminders.ts` |
+| Smarter: decisions from context | A Care Assistant gives role-aware guidance (missed doses, double-dose risk, low adherence, upcoming visits, courses ending) | `src/lib/domain/assistant.ts` |
 | The elder at the centre of their own decisions | Only the elder controls editing rights and the escalation delay; the elder is always told first | `src/lib/domain/permissions.ts` |
 
 ## How it works
