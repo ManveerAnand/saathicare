@@ -47,15 +47,35 @@ describe("rate limiter", () => {
     expect(limiter.allow("ip", 2)).toBe(false);
     expect(limiter.allow("ip", 1001)).toBe(true);
   });
+
+  it("limits each key independently", () => {
+    const limiter = new RateLimiter(1, 1000);
+    expect(limiter.allow("first", 0)).toBe(true);
+    expect(limiter.allow("first", 1)).toBe(false);
+    expect(limiter.allow("second", 1)).toBe(true);
+  });
+
+  it("resets a key before the window expires", () => {
+    const limiter = new RateLimiter(1, 1000);
+    expect(limiter.allow("first", 0)).toBe(true);
+    limiter.reset("first");
+    expect(limiter.allow("first", 1)).toBe(true);
+  });
 });
 
 describe("permissions", () => {
-  it("lets the elder decide who edits", () => {
-    const profile = makeProfile();
+  it.each([
+    [false, false],
+    [false, true],
+    [true, false],
+    [true, true],
+  ])("enforces the elder's access choices (caretaker %s, family %s)", (caretakerCanEdit, familyCanEdit) => {
+    const profile = makeProfile({ permissions: { caretakerCanEdit, familyCanEdit, escalateAfterMinutes: 30 } });
     expect(canEdit(profile, "elder")).toBe(true);
-    expect(canEdit(profile, "caretaker")).toBe(true);
-    expect(canEdit(profile, "family")).toBe(false);
+    expect(canEdit(profile, "caretaker")).toBe(caretakerCanEdit);
+    expect(canEdit(profile, "family")).toBe(familyCanEdit);
     expect(canManageAccess("elder")).toBe(true);
     expect(canManageAccess("caretaker")).toBe(false);
+    expect(canManageAccess("family")).toBe(false);
   });
 });

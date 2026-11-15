@@ -1,10 +1,9 @@
 import "server-only";
 import { FinishReason, GoogleGenAI } from "@google/genai";
 import { env } from "../env";
-import { extractedMedicationsSchema, type ExtractedMedication } from "../validation";
+import type { ExtractedMedication } from "../validation";
+import { parseExtraction } from "./parse";
 
-// A fast, non-reasoning model: answers in about a second, where larger reasoning models took
-// over a minute under load. Short explanations and label reading do not need deep reasoning.
 /** Fail fast rather than leave an elder waiting on a spinner. */
 const TIMEOUT_MS = 25_000;
 
@@ -50,8 +49,7 @@ export async function extractMedications(imageBase64: string, mimeType: string):
       abortSignal: AbortSignal.timeout(TIMEOUT_MS),
     },
   });
-  const parsed = extractedMedicationsSchema.safeParse(JSON.parse(res.text ?? "{}"));
-  return parsed.success ? parsed.data.medications.filter((m) => m.name.trim()) : [];
+  return parseExtraction(res.text ?? "");
 }
 
 /** A short, plain-language note on what a medicine is for, written for an elderly reader. */
