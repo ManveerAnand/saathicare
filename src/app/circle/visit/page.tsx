@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { PrintButton } from "@/components/PrintButton";
 import { addDays, localDate, zonedToUtc } from "@/lib/domain/time";
 import { buildVisitSummary } from "@/lib/domain/visitSummary";
+import { formatCalendarDate, formatInZone } from "@/lib/presentation";
 import { currentSession, repo } from "@/lib/server";
 
 export const metadata: Metadata = { title: "Doctor visit summary | SaathiCare" };
@@ -25,7 +26,7 @@ export default async function VisitSummaryPage() {
     repo().listAppointments(profile.id, now.toISOString()),
   ]);
   const s = buildVisitSummary(profile, meds, logs, appointments, now, DAYS);
-  const fmtDate = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  const fmtDate = (d: string) => formatCalendarDate(d, { day: "numeric", month: "short", year: "numeric" });
   const appt = s.nextAppointment;
 
   return (
@@ -44,7 +45,7 @@ export default async function VisitSummaryPage() {
         {appt && (
           <p>
             <strong>Visit:</strong> {appt.doctor},{" "}
-            {new Date(appt.at).toLocaleString("en-IN", { timeZone: tz, dateStyle: "medium", timeStyle: "short" })} · {appt.purpose}
+            {formatInZone(appt.at, tz, { dateStyle: "medium", timeStyle: "short" })} · {appt.purpose}
             {appt.notes && ` · ${appt.notes}`}
           </p>
         )}

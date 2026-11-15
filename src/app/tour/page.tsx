@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { enterDemo } from "@/app/actions";
+import { enterDemo } from "@/app/actions/demo";
 import { SubmitButton } from "@/components/forms";
 import type { Role } from "@/lib/domain/types";
 

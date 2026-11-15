@@ -1,6 +1,6 @@
 ﻿import Link from "next/link";
 import { redirect } from "next/navigation";
-import { enterDemo } from "@/app/actions";
+import { enterDemo } from "@/app/actions/demo";
 import { SignInForm, SubmitButton } from "@/components/forms";
 import { ProgressRing } from "@/components/ProgressRing";
 import { currentSession, repo } from "@/lib/server";
@@ -52,20 +52,20 @@ export default async function Home() {
               <ProgressRing done={3} total={5} />
               <div>
                 <p className="eyebrow">Today</p>
-                <p className="display" style={{ fontSize: "1.3rem", margin: 0 }}>Good afternoon, Kamala</p>
-                <p className="muted" style={{ margin: 0 }}>Next: Amoxicillin at 14:00</p>
+                <p className="display preview-title">Good afternoon, Kamala</p>
+                <p className="muted flush">Next: Amoxicillin at 14:00</p>
               </div>
             </div>
           </div>
           <div className="dose" data-status="due">
-            <span className="pill" style={{ background: "#b45309" }}>A</span>
+            <span className="pill preview-pill">A</span>
             <div>
               <div className="dose-time">14:00</div>
               <div className="dose-name">Amoxicillin · 500 mg</div>
             </div>
             <span className="button">✓ Taken</span>
           </div>
-          <div className="insight urgent" style={{ marginTop: "0.75rem" }}>
+          <div className="insight urgent preview-insight">
             <span className="dot" />
             The 08:00 Metformin was missed. The next dose is at 20:00: do not take two together.
           </div>

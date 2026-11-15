@@ -1,10 +1,10 @@
-# SaathiCare
+﻿# SaathiCare
 
 **One shared care plan for an elder, their caretakers and their family, with the elder in charge.**
 
-| 🌐 Live app | 🧭 Guided tour (2 min) | 🧪 Quality |
+| ðŸŒ Live app | ðŸ§­ Guided tour (2 min) | ðŸ§ª Quality |
 |---|---|---|
-| **[saathicare-six.vercel.app](https://saathicare-six.vercel.app)** | **[saathicare-six.vercel.app/tour](https://saathicare-six.vercel.app/tour)** | 80+ automated tests · CI on every push |
+| **[saathicare-six.vercel.app](https://saathicare-six.vercel.app)** | **[saathicare-six.vercel.app/tour](https://saathicare-six.vercel.app/tour)** | 80+ automated tests Â· CI on every push |
 
 > **No sign-up needed.** On the home page, press **"Try the demo as the elder"** (or as family or
 > caretaker). You land in the shared care circle of Kamala Devi, 72, with a month of real-looking
@@ -17,10 +17,10 @@
 
 1. **As the elder:** open the [home page](https://saathicare-six.vercel.app) and press **Try the
    demo as the elder**. The ring shows today's doses; the **Care Assistant** warns that a dose was
-   missed and the next one is soon (*do not take two together*). Press **✓ Taken** and watch the
+   missed and the next one is soon (*do not take two together*). Press **âœ“ Taken** and watch the
    day update. At the bottom, **Your choices** is where the elder decides who may edit and when
    family is told about a missed dose.
-2. **As family:** press **Sign out**, then **…as family**. The page now asks *"How is Kamala
+2. **As family:** press **Sign out**, then **â€¦as family**. The page now asks *"How is Kamala
    doing?"*, and there are no edit forms, because the elder has not allowed family to edit. Family
    can still confirm a dose.
 3. **As a caretaker:** sign in as caretaker. Under **Medicines**, try **Add from a prescription
@@ -100,9 +100,9 @@ so they are predictable and testable.
 |---|---|---|
 | A shared ecosystem for elders, caretakers and family | One care circle per elder, with three roles: elder, caretaker, family | `src/lib/domain/types.ts` |
 | Secure, passcode-based access | A separate passcode per role, hashed with scrypt; signed, httpOnly, SameSite=strict session cookie; rate-limited sign-in | `src/lib/auth/` |
-| View, add, edit and manage medication schedules | Medicines with dose, instructions, daily times, and start and end dates; soft delete keeps the history | `src/app/actions.ts`, `src/components/forms.tsx` |
+| View, add, edit and manage medication schedules | Medicines with dose, instructions, daily times, and start and end dates; soft delete keeps the history | `src/app/actions/carePlan.ts`, `src/components/forms/` |
 | Track adherence | One-tap "Taken" or "Skip"; 7-day adherence with a daily trend | `src/lib/domain/schedule.ts` |
-| Monitor upcoming doctor appointments | Appointments with doctor, reason, place and notes | `src/app/circle/page.tsx` |
+| Monitor upcoming doctor appointments | Appointments with doctor, reason, place and notes | `src/components/circle/AppointmentsCard.tsx` |
 | Email reminders for upcoming doses, missed doses and appointments | A reminder job every 15 minutes, idempotent, so each email is sent once | `src/lib/domain/reminders.ts`, `src/lib/reminderJob.ts` |
 | Smarter and more accessible | Gemini prescription reading, plain-language explanations, a large-text elder view | `src/lib/ai/gemini.ts`, `src/app/globals.css` |
 | Collaborative and reliable | Anyone in the circle can confirm a dose; reminders escalate to others | `src/lib/domain/reminders.ts` |
@@ -114,18 +114,32 @@ so they are predictable and testable.
 
 ```
 Browser (server-rendered pages, small client forms)
-   │  Server Actions: every input checked with zod, every change checked against the role
-   ▼
-Next.js on Vercel ──► Firestore (profiles, medications, dose logs, appointments)
-   │              └─► Gemini (prescription photo → draft medicines; explanations, cached)
-   ▼
-/api/cron/reminders  ◄── GitHub Actions every 15 min (Bearer CRON_SECRET)
-   └─► Gmail SMTP: elder first, then caretakers and family after the elder's chosen delay
+   â”‚  Server Actions: every input checked with zod, every change checked against the role
+   â–¼
+Next.js on Vercel â”€â”€â–º Firestore (profiles, medications, dose logs, appointments)
+   â”‚              â””â”€â–º Gemini (prescription photo â†’ draft medicines; explanations, cached)
+   â–¼
+/api/cron/reminders  â—„â”€â”€ GitHub Actions every 15 min (Bearer CRON_SECRET)
+   â””â”€â–º Gmail SMTP: elder first, then caretakers and family after the elder's chosen delay
 ```
 
 The rules (scheduling, adherence, reminders, permissions) are plain TypeScript functions in
 `src/lib/domain`, with no framework or database code, so they are easy to test and reuse.
 Storage sits behind a `Repo` interface with a Firestore version and an in-memory version.
+
+## Project structure
+
+```
+src/app/                Pages and routes (landing, setup, tour, care circle, visit summary, reminder cron)
+src/app/actions/        Server Actions by topic: auth, demo, carePlan, ai (session.ts holds the shared checks)
+src/components/circle/  The care circle dashboard, one small server component per card
+src/components/forms/   Client forms, one file per form (sign-in, setup, medicine, appointment, scan, choices)
+src/lib/domain/         Pure rules: schedules, adherence, reminders, assistant, permissions, visit summary
+src/lib/auth/           Passcode hashing, signed session tokens, sign-in rate limit
+src/lib/repo/           Storage behind one interface: Firestore and in-memory versions
+src/lib/ai/             Gemini calls (prescription reading, medicine explanations)
+src/lib/presentation.ts Display helpers shared by the pages (labels, greeting, date formats)
+```
 
 ## Google services
 
@@ -178,7 +192,7 @@ To use real services, copy `.env.example` to `.env.local` and fill it in.
 ## Tests
 
 ```bash
-npm test          # 84 tests: time zones, schedules, adherence, reminders, the Care Assistant,
+npm test          # 95 tests: time zones, schedules, adherence, reminders, the Care Assistant,
                   # the visit summary, auth, input validation, the reminder job and the demo seed
 npm run check     # lint + type check + tests
 ```

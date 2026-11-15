@@ -304,3 +304,18 @@ thead th { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em
   * { transition: none !important; animation: none !important; }
   .preview { transform: none; }
 }
+
+/* Layout helpers (replace one-off inline styles) */
+.flush { margin: 0; }
+.demo-reset { margin-top: 0.5rem; }
+.dose-meta { gap: 0.5rem; }
+.medicine-card { margin-bottom: 0; }
+.medicine-instructions { margin-top: 0.6rem; }
+.medicine-adders { margin-top: 0.5rem; }
+.read-only-note { margin-top: 0.75rem; }
+.sign-out { text-align: right; }
+
+/* Landing page preview */
+.preview-title { font-size: 1.3rem; margin: 0; }
+.preview-pill { background: #b45309; }
+.preview-insight { margin-top: 0.75rem; }
