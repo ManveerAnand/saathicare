@@ -1,16 +1,24 @@
+import type { ZodError } from "zod";
+import { firstError } from "@/lib/validation";
 import type { FormState } from "./types";
 
+export type FormIssue = string | ZodError;
+
+/** Returns an error and restores only the allowed, non-secret fields. */
 export function formError(
   previous: FormState,
-  error: string,
+  cause: FormIssue,
   form: FormData,
   fields: readonly string[],
-  extraValues: Record<string, string> = {},
+  options: { field?: string; values?: Record<string, string> } = {},
 ): FormState {
-  const values = { ...extraValues };
-  for (const field of fields) {
-    const value = form.get(field);
-    if (typeof value === "string") values[field] = value;
+  const values = { ...options.values };
+  for (const name of fields) {
+    const value = form.get(name);
+    if (typeof value === "string") values[name] = value;
   }
-  return { error, values, errorCount: (previous.errorCount ?? 0) + 1 };
+  const path = typeof cause === "string" ? undefined : cause.issues[0]?.path[0];
+  const field = options.field ?? (typeof path === "string" ? path : undefined);
+  const error = typeof cause === "string" ? cause : firstError(cause);
+  return { error, field, values, errorCount: (previous.errorCount ?? 0) + 1 };
 }

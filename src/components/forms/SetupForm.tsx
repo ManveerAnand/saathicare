@@ -1,25 +1,46 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useId } from "react";
 import { createProfile } from "@/app/actions/auth";
-import { emptyState, Status } from "./Status";
+import { emptyState, fieldError, Status } from "./Status";
 import { SubmitButton } from "./SubmitButton";
 
 export function SetupForm({ defaultTimeZone }: { defaultTimeZone: string }) {
   const [state, action] = useActionState(createProfile, emptyState);
+  const errorId = useId();
   const { values } = state;
   return (
     <form action={action} key={state.errorCount ?? 0}>
       <fieldset>
         <legend>The person being cared for</legend>
         <label htmlFor="elderName">Their name</label>
-        <input id="elderName" name="elderName" defaultValue={values?.elderName} required maxLength={80} />
+        <input
+          id="elderName"
+          name="elderName"
+          {...fieldError(state, "elderName", errorId)}
+          defaultValue={values?.elderName}
+          required
+          maxLength={80}
+        />
         <label htmlFor="elderEmail">
           Their email <span className="hint">(reminders go here first)</span>
         </label>
-        <input id="elderEmail" name="elderEmail" type="email" defaultValue={values?.elderEmail} required />
+        <input
+          id="elderEmail"
+          name="elderEmail"
+          {...fieldError(state, "elderEmail", errorId)}
+          type="email"
+          defaultValue={values?.elderEmail}
+          required
+        />
         <label htmlFor="timeZone">Time zone</label>
-        <input id="timeZone" name="timeZone" defaultValue={values?.timeZone ?? defaultTimeZone} required />
+        <input
+          id="timeZone"
+          name="timeZone"
+          {...fieldError(state, "timeZone", errorId)}
+          defaultValue={values?.timeZone ?? defaultTimeZone}
+          required
+        />
       </fieldset>
 
       <fieldset>
@@ -31,6 +52,7 @@ export function SetupForm({ defaultTimeZone }: { defaultTimeZone: string }) {
         <input
           id="elderPasscode"
           name="elderPasscode"
+          {...fieldError(state, "elderPasscode", errorId)}
           type="password"
           inputMode="numeric"
           autoComplete="new-password"
@@ -42,6 +64,7 @@ export function SetupForm({ defaultTimeZone }: { defaultTimeZone: string }) {
         <input
           id="caretakerPasscode"
           name="caretakerPasscode"
+          {...fieldError(state, "caretakerPasscode", errorId)}
           type="password"
           inputMode="numeric"
           autoComplete="new-password"
@@ -53,6 +76,7 @@ export function SetupForm({ defaultTimeZone }: { defaultTimeZone: string }) {
         <input
           id="familyPasscode"
           name="familyPasscode"
+          {...fieldError(state, "familyPasscode", errorId)}
           type="password"
           inputMode="numeric"
           autoComplete="new-password"
@@ -69,6 +93,7 @@ export function SetupForm({ defaultTimeZone }: { defaultTimeZone: string }) {
               <input
                 id={`contactName${i}`}
                 name={`contactName${i}`}
+                {...fieldError(state, `contactName${i}`, errorId)}
                 defaultValue={values?.[`contactName${i}`]}
                 maxLength={80}
               />
@@ -78,6 +103,7 @@ export function SetupForm({ defaultTimeZone }: { defaultTimeZone: string }) {
               <input
                 id={`contactEmail${i}`}
                 name={`contactEmail${i}`}
+                {...fieldError(state, `contactEmail${i}`, errorId)}
                 type="email"
                 defaultValue={values?.[`contactEmail${i}`]}
               />
@@ -87,6 +113,7 @@ export function SetupForm({ defaultTimeZone }: { defaultTimeZone: string }) {
               <select
                 id={`contactRole${i}`}
                 name={`contactRole${i}`}
+                {...fieldError(state, `contactRole${i}`, errorId)}
                 defaultValue={values?.[`contactRole${i}`] ?? (i === 0 ? "caretaker" : "family")}
               >
                 <option value="caretaker">Caretaker</option>
@@ -96,7 +123,7 @@ export function SetupForm({ defaultTimeZone }: { defaultTimeZone: string }) {
           </div>
         ))}
       </fieldset>
-      <Status state={state} />
+      <Status state={state} errorId={errorId} />
       <SubmitButton className="big">Create care circle</SubmitButton>
     </form>
   );

@@ -1,10 +1,10 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useId } from "react";
 import { saveMedication } from "@/app/actions/carePlan";
 import type { Medication } from "@/lib/domain/types";
 import type { ExtractedMedication } from "@/lib/validation";
-import { emptyState, Status } from "./Status";
+import { emptyState, fieldError, Status } from "./Status";
 import { SubmitButton } from "./SubmitButton";
 
 export function MedicationForm({
@@ -17,6 +17,7 @@ export function MedicationForm({
   today: string;
 }) {
   const [state, action] = useActionState(saveMedication, emptyState);
+  const errorId = useId();
   const { values } = state;
   const source = medication ?? draft;
   const initialTimes = values?.times?.split(",") ?? source?.times ?? ["08:00"];
@@ -27,11 +28,19 @@ export function MedicationForm({
     <form action={action} key={state.errorCount ?? 0}>
       {medication && <input type="hidden" name="id" defaultValue={values?.id ?? medication.id} />}
       <label htmlFor={`${prefix}-name`}>Medicine name</label>
-      <input id={`${prefix}-name`} name="name" defaultValue={values?.name ?? source?.name} required maxLength={80} />
+      <input
+        id={`${prefix}-name`}
+        name="name"
+        {...fieldError(state, "name", errorId)}
+        defaultValue={values?.name ?? source?.name}
+        required
+        maxLength={80}
+      />
       <label htmlFor={`${prefix}-dosage`}>Dose</label>
       <input
         id={`${prefix}-dosage`}
         name="dosage"
+        {...fieldError(state, "dosage", errorId)}
         defaultValue={values?.dosage ?? source?.dosage}
         placeholder="500 mg, 1 tablet"
         required
@@ -43,11 +52,12 @@ export function MedicationForm({
       <input
         id={`${prefix}-instructions`}
         name="instructions"
+        {...fieldError(state, "instructions", errorId)}
         defaultValue={values?.instructions ?? source?.instructions}
         placeholder="After food"
         maxLength={300}
       />
-      <fieldset>
+      <fieldset {...fieldError(state, "times", errorId)}>
         <legend>Times each day</legend>
         <div className="row">
           {times.map((t, i) => (
@@ -66,6 +76,7 @@ export function MedicationForm({
           <input
             id={`${prefix}-start`}
             name="startDate"
+            {...fieldError(state, "startDate", errorId)}
             type="date"
             defaultValue={values?.startDate ?? medication?.startDate ?? today}
             required
@@ -78,12 +89,13 @@ export function MedicationForm({
           <input
             id={`${prefix}-end`}
             name="endDate"
+            {...fieldError(state, "endDate", errorId)}
             type="date"
             defaultValue={values?.endDate ?? medication?.endDate}
           />
         </div>
       </div>
-      <Status state={state} />
+      <Status state={state} errorId={errorId} />
       <SubmitButton>{medication ? "Save changes" : draft ? "Confirm and add" : "Add medicine"}</SubmitButton>
     </form>
   );

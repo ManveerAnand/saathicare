@@ -1,18 +1,20 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useId } from "react";
 import { signIn } from "@/app/actions/auth";
-import { emptyState, Status } from "./Status";
+import { emptyState, fieldError, Status } from "./Status";
 import { SubmitButton } from "./SubmitButton";
 
 export function SignInForm() {
   const [state, action] = useActionState(signIn, emptyState);
+  const errorId = useId();
   return (
     <form action={action} key={state.errorCount ?? 0}>
       <label htmlFor="profileId">Care code</label>
       <input
         id="profileId"
         name="profileId"
+        {...fieldError(state, "profileId", errorId)}
         defaultValue={state.values?.profileId}
         autoComplete="username"
         required
@@ -24,12 +26,13 @@ export function SignInForm() {
       <input
         id="passcode"
         name="passcode"
+        {...fieldError(state, "passcode", errorId)}
         type="password"
         inputMode="numeric"
         autoComplete="current-password"
         required
       />
-      <Status state={state} />
+      <Status state={state} errorId={errorId} />
       <SubmitButton className="big">Open care circle</SubmitButton>
     </form>
   );

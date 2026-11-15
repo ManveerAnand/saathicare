@@ -5,8 +5,8 @@ import { redirect } from "next/navigation";
 import { hashPasscode, verifyPasscode } from "@/lib/auth/passcode";
 import { ROLES } from "@/lib/domain/types";
 import { loginLimiter, repo, SESSION_COOKIE } from "@/lib/server";
-import { createProfileSchema, firstError, loginSchema } from "@/lib/validation";
-import { formError } from "./formError";
+import { createProfileSchema, loginSchema } from "@/lib/validation";
+import { formError, type FormIssue } from "./formError";
 import { startSession } from "./session";
 import type { FormState } from "./types";
 
@@ -21,6 +21,7 @@ const setupFields = [
 export async function createProfile(previous: FormState, form: FormData): Promise<FormState> {
   const contacts = contactSlots
     .map((i) => ({
+      slot: i,
       name: String(form.get(`contactName${i}`) ?? "").trim(),
       email: String(form.get(`contactEmail${i}`) ?? "").trim(),
       role: String(form.get(`contactRole${i}`) ?? "family"),
@@ -28,7 +29,13 @@ export async function createProfile(previous: FormState, form: FormData): Promis
     .filter((c) => c.name || c.email);
 
   const parsed = createProfileSchema.safeParse({ ...Object.fromEntries(form), contacts });
-  if (!parsed.success) return formError(previous, firstError(parsed.error), form, setupFields);
+  if (!parsed.success) {
+    const [group, index, property] = parsed.error.issues[0]?.path ?? [];
+    const contact = group === "contacts" && typeof index === "number" ? contacts[index] : undefined;
+    const prefix = property === "name" ? "contactName" : property === "email" ? "contactEmail" : "contactRole";
+    const field = contact ? `${prefix}${contact.slot}` : undefined;
+    return formError(previous, parsed.error, form, setupFields, { field });
+  }
   const v = parsed.data;
 
   const [elder, caretaker, family] = await Promise.all(
@@ -47,14 +54,14 @@ export async function createProfile(previous: FormState, form: FormData): Promis
 }
 
 export async function signIn(previous: FormState, form: FormData): Promise<FormState> {
-  const fail = (error: string) => formError(previous, error, form, ["profileId"]);
+  const fail = (error: FormIssue, field?: string) => formError(previous, error, form, ["profileId"], { field });
   const parsed = loginSchema.safeParse({
     profileId: String(form.get("profileId") ?? "")
       .trim()
       .toLowerCase(),
     passcode: form.get("passcode"),
   });
-  if (!parsed.success) return fail(firstError(parsed.error));
+  if (!parsed.success) return fail(parsed.error);
   const { profileId, passcode } = parsed.data;
 
   const ip = (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
@@ -69,7 +76,7 @@ export async function signIn(previous: FormState, form: FormData): Promise<FormS
     ? await Promise.all(ROLES.map((r) => verifyPasscode(passcode, profile.passcodeHashes[r])))
     : [];
   const role = ROLES.find((_, i) => matches[i]);
-  if (!profile || !role) return fail("That care code and passcode do not match.");
+  if (!profile || !role) return fail("That care code and passcode do not match.", "passcode");
 
   loginLimiter().reset(limitKey);
   await startSession(profile.id, role);

@@ -5,7 +5,7 @@ import { canManageAccess } from "@/lib/domain/permissions";
 import { zonedToUtc } from "@/lib/domain/time";
 import { repo } from "@/lib/server";
 import { appointmentSchema, doseLogSchema, firstError, medicationSchema, permissionsSchema } from "@/lib/validation";
-import { formError } from "./formError";
+import { formError, type FormIssue } from "./formError";
 import { requireEditor, requireSession } from "./session";
 import type { FormState } from "./types";
 
@@ -27,7 +27,8 @@ export async function logDose(form: FormData): Promise<void> {
 
 export async function saveMedication(previous: FormState, form: FormData): Promise<FormState> {
   const times = form.getAll("times").map(String);
-  const fail = (error: string) => formError(previous, error, form, medicationFields, { times: times.join(",") });
+  const fail = (error: FormIssue) =>
+    formError(previous, error, form, medicationFields, { values: { times: times.join(",") } });
   const session = await requireEditor();
   if (!session) return fail("The elder has not allowed your role to edit medicines.");
 
@@ -39,7 +40,7 @@ export async function saveMedication(previous: FormState, form: FormData): Promi
     startDate: form.get("startDate"),
     endDate: form.get("endDate") || undefined,
   });
-  if (!parsed.success) return fail(firstError(parsed.error));
+  if (!parsed.success) return fail(parsed.error);
 
   const id = String(form.get("id") ?? "") || undefined;
   await repo().saveMedication(session.profileId, { ...parsed.data, id, updatedBy: session.role });
@@ -56,11 +57,11 @@ export async function removeMedication(form: FormData): Promise<void> {
 }
 
 export async function saveAppointment(previous: FormState, form: FormData): Promise<FormState> {
-  const fail = (error: string) => formError(previous, error, form, appointmentFields);
+  const fail = (error: FormIssue) => formError(previous, error, form, appointmentFields);
   const session = await requireEditor();
   if (!session) return fail("The elder has not allowed your role to edit appointments.");
   const parsed = appointmentSchema.safeParse(Object.fromEntries(form));
-  if (!parsed.success) return fail(firstError(parsed.error));
+  if (!parsed.success) return fail(parsed.error);
 
   const profile = await repo().getProfile(session.profileId);
   if (!profile) return fail("Care circle not found.");
