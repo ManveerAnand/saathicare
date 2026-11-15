@@ -1,14 +1,9 @@
 import "server-only";
 import { cert, getApps, initializeApp } from "firebase-admin/app";
-import {
-  getFirestore,
-  type DocumentReference,
-  type Firestore,
-  type QueryDocumentSnapshot,
-  type Transaction,
-} from "firebase-admin/firestore";
+import { getFirestore, type Firestore } from "firebase-admin/firestore";
 import { createHash } from "node:crypto";
 import type { Appointment, DoseLog, Medication, Permissions, Profile } from "../domain/types";
+import { appointmentConverter, doseLogConverter, medicationConverter, profileConverter } from "./converters";
 import { newId } from "./ids";
 import {
   compareMedications,
@@ -37,7 +32,19 @@ export class FirestoreRepo implements Repo {
   }
 
   private profile(id: string) {
-    return this.db.collection("profiles").doc(id);
+    return this.db.collection("profiles").withConverter<Profile>(profileConverter).doc(id);
+  }
+
+  private medications(profileId: string) {
+    return this.profile(profileId).collection("medications").withConverter<Medication>(medicationConverter);
+  }
+
+  private doseLogs(profileId: string) {
+    return this.profile(profileId).collection("doseLogs").withConverter<DoseLog>(doseLogConverter);
+  }
+
+  private appointments(profileId: string) {
+    return this.profile(profileId).collection("appointments").withConverter<Appointment>(appointmentConverter);
   }
 
   async createProfile(input: NewProfile): Promise<Profile> {
@@ -47,23 +54,22 @@ export class FirestoreRepo implements Repo {
   }
 
   async getProfile(id: string) {
-    const snap = await this.profile(id).get();
-    return snap.exists ? (snap.data() as Profile) : null;
+    return (await this.profile(id).get()).data() ?? null;
   }
 
   async ensureProfile(profile: Profile) {
     const ref = this.profile(profile.id);
-    return this.db.runTransaction(async (tx: Transaction) => {
-      const snap = await tx.get(ref);
-      if (snap.exists) return snap.data() as Profile;
-      tx.create(ref, JSON.parse(JSON.stringify(profile)) as Profile);
+    return this.db.runTransaction(async (tx) => {
+      const previous = (await tx.get(ref)).data();
+      if (previous) return previous;
+      tx.create(ref, profile);
       return profile;
     });
   }
 
   async listProfileIds() {
     const refs = await this.db.collection("profiles").listDocuments();
-    return refs.map((r: DocumentReference) => r.id);
+    return refs.map((r) => r.id);
   }
 
   async updatePermissions(id: string, permissions: Permissions) {
@@ -71,21 +77,20 @@ export class FirestoreRepo implements Repo {
   }
 
   async listMedications(profileId: string) {
-    const snap = await this.profile(profileId).collection("medications").where("active", "==", true).get();
+    const snap = await this.medications(profileId).where("active", "==", true).get();
     // Firestore returns no fixed order, so sort here.
-    return snap.docs.map((d: QueryDocumentSnapshot) => d.data() as Medication).sort(compareMedications);
+    return snap.docs.map((d) => d.data()).sort(compareMedications);
   }
 
   async getMedication(profileId: string, id: string) {
-    const snap = await this.profile(profileId).collection("medications").doc(id).get();
-    return snap.exists ? (snap.data() as Medication) : null;
+    return (await this.medications(profileId).doc(id).get()).data() ?? null;
   }
 
   async saveMedication(profileId: string, input: MedicationInput) {
     const id = input.id ?? newId();
-    const ref = this.profile(profileId).collection("medications").doc(id);
-    return this.db.runTransaction(async (tx: Transaction) => {
-      const previous = (await tx.get(ref)).data() as Medication | undefined;
+    const ref = this.medications(profileId).doc(id);
+    return this.db.runTransaction(async (tx) => {
+      const previous = (await tx.get(ref)).data();
       const keepExplanation = previous?.explanation && previous.name === input.name && previous.dosage === input.dosage;
       const med: Medication = {
         ...input,
@@ -94,52 +99,43 @@ export class FirestoreRepo implements Repo {
         updatedAt: new Date().toISOString(),
         ...(keepExplanation ? { explanation: previous.explanation } : {}),
       };
-      // Firestore rejects undefined fields.
-      tx.set(ref, JSON.parse(JSON.stringify(med)) as Medication);
+      tx.set(ref, med);
       return med;
     });
   }
 
   async setExplanation(profileId: string, id: string, explanation: string) {
-    await this.profile(profileId).collection("medications").doc(id).update({ explanation });
+    await this.medications(profileId).doc(id).update({ explanation });
   }
 
   async deactivateMedication(profileId: string, id: string) {
-    await this.profile(profileId).collection("medications").doc(id).update({ active: false });
+    await this.medications(profileId).doc(id).update({ active: false });
   }
 
   async listDoseLogs(profileId: string, sinceIso: string) {
-    const snap = await this.profile(profileId).collection("doseLogs").where("scheduledFor", ">=", sinceIso).get();
-    return snap.docs.map((d: QueryDocumentSnapshot) => d.data() as DoseLog);
+    const snap = await this.doseLogs(profileId).where("scheduledFor", ">=", sinceIso).get();
+    return snap.docs.map((d) => d.data());
   }
 
   async logDose(profileId: string, input: Omit<DoseLog, "id">) {
     const log: DoseLog = { ...input, id: doseLogId(input.medicationId, input.scheduledFor) };
-    await this.profile(profileId).collection("doseLogs").doc(log.id).set(log);
+    await this.doseLogs(profileId).doc(log.id).set(log);
     return log;
   }
 
   async listAppointments(profileId: string, fromIso: string) {
-    const snap = await this.profile(profileId)
-      .collection("appointments")
-      .where("at", ">=", fromIso)
-      .orderBy("at")
-      .limit(50)
-      .get();
-    return snap.docs.map((d: QueryDocumentSnapshot) => d.data() as Appointment);
+    const snap = await this.appointments(profileId).where("at", ">=", fromIso).orderBy("at").limit(50).get();
+    return snap.docs.map((d) => d.data());
   }
 
   async saveAppointment(profileId: string, input: AppointmentInput) {
     const appt: Appointment = { ...input, id: input.id ?? newId() };
-    await this.profile(profileId)
-      .collection("appointments")
-      .doc(appt.id)
-      .set(JSON.parse(JSON.stringify(appt)) as Appointment);
+    await this.appointments(profileId).doc(appt.id).set(appt);
     return appt;
   }
 
   async deleteAppointment(profileId: string, id: string) {
-    await this.profile(profileId).collection("appointments").doc(id).delete();
+    await this.appointments(profileId).doc(id).delete();
   }
 
   private sentRef(profileId: string, key: string) {
