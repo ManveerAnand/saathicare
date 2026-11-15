@@ -4,6 +4,8 @@ import type { ExtractedMedication } from "@/lib/validation";
 export interface FormState {
   error?: string;
   ok?: string;
+  values?: Record<string, string>;
+  errorCount?: number;
 }
 
 /** Result of reading a prescription photo: the draft medicines, if any were found. */

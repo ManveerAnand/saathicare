@@ -19,27 +19,29 @@ export function MedicationForm({
   today: string;
 }) {
   const [state, action] = useActionState(saveMedication, emptyState);
+  const { values } = state;
   const source = medication ?? draft;
   const times = [...(source?.times ?? []), ...DEFAULT_TIMES].slice(0, 4);
   if (!source?.times?.length) times[0] = "08:00";
+  const submittedTimes = values?.times?.split(",");
   const prefix = medication?.id ?? (draft ? `draft-${draft.name}` : "new");
 
   return (
-    <form action={action}>
-      {medication && <input type="hidden" name="id" value={medication.id} />}
+    <form action={action} key={state.errorCount ?? 0}>
+      {medication && <input type="hidden" name="id" defaultValue={values?.id ?? medication.id} />}
       <label htmlFor={`${prefix}-name`}>Medicine name</label>
-      <input id={`${prefix}-name`} name="name" defaultValue={source?.name} required maxLength={80} />
+      <input id={`${prefix}-name`} name="name" defaultValue={values?.name ?? source?.name} required maxLength={80} />
       <label htmlFor={`${prefix}-dosage`}>Dose</label>
-      <input id={`${prefix}-dosage`} name="dosage" defaultValue={source?.dosage} placeholder="500 mg, 1 tablet" required maxLength={60} />
+      <input id={`${prefix}-dosage`} name="dosage" defaultValue={values?.dosage ?? source?.dosage} placeholder="500 mg, 1 tablet" required maxLength={60} />
       <label htmlFor={`${prefix}-instructions`}>Instructions <span className="hint">(optional)</span></label>
-      <input id={`${prefix}-instructions`} name="instructions" defaultValue={source?.instructions} placeholder="After food" maxLength={300} />
+      <input id={`${prefix}-instructions`} name="instructions" defaultValue={values?.instructions ?? source?.instructions} placeholder="After food" maxLength={300} />
       <fieldset>
         <legend>Times each day</legend>
         <div className="row">
           {times.map((t, i) => (
             <div key={i}>
               <label htmlFor={`${prefix}-time${i}`} className="sr-only">Time {i + 1}</label>
-              <input id={`${prefix}-time${i}`} name="times" type="time" defaultValue={t} />
+              <input id={`${prefix}-time${i}`} name="times" type="time" defaultValue={submittedTimes ? submittedTimes[i] ?? "" : t} />
             </div>
           ))}
         </div>
@@ -47,11 +49,11 @@ export function MedicationForm({
       <div className="grid">
         <div>
           <label htmlFor={`${prefix}-start`}>Start date</label>
-          <input id={`${prefix}-start`} name="startDate" type="date" defaultValue={medication?.startDate ?? today} required />
+          <input id={`${prefix}-start`} name="startDate" type="date" defaultValue={values?.startDate ?? medication?.startDate ?? today} required />
         </div>
         <div>
           <label htmlFor={`${prefix}-end`}>End date <span className="hint">(optional)</span></label>
-          <input id={`${prefix}-end`} name="endDate" type="date" defaultValue={medication?.endDate} />
+          <input id={`${prefix}-end`} name="endDate" type="date" defaultValue={values?.endDate ?? medication?.endDate} />
         </div>
       </div>
       <Status state={state} />

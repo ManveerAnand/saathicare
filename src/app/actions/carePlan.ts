@@ -11,8 +11,12 @@ import {
   medicationSchema,
   permissionsSchema,
 } from "@/lib/validation";
+import { formError } from "./formError";
 import { requireEditor, requireSession } from "./session";
 import type { FormState } from "./types";
+
+const medicationFields = ["id", "name", "dosage", "instructions", "startDate", "endDate"];
+const appointmentFields = ["doctor", "purpose", "location", "date", "time", "notes"];
 
 export async function logDose(form: FormData): Promise<void> {
   const session = await requireSession();
@@ -27,20 +31,21 @@ export async function logDose(form: FormData): Promise<void> {
   revalidatePath("/circle");
 }
 
-export async function saveMedication(_prev: FormState, form: FormData): Promise<FormState> {
+export async function saveMedication(previous: FormState, form: FormData): Promise<FormState> {
+  const times = form.getAll("times").map(String);
+  const fail = (error: string) => formError(previous, error, form, medicationFields, { times: times.join(",") });
   const session = await requireEditor();
-  if (!session) return { error: "The elder has not allowed your role to edit medicines." };
+  if (!session) return fail("The elder has not allowed your role to edit medicines.");
 
-  const times = form.getAll("times").map(String).filter(Boolean);
   const parsed = medicationSchema.safeParse({
     name: form.get("name"),
     dosage: form.get("dosage"),
     instructions: form.get("instructions") ?? "",
-    times,
+    times: times.filter(Boolean),
     startDate: form.get("startDate"),
     endDate: form.get("endDate") || undefined,
   });
-  if (!parsed.success) return { error: firstError(parsed.error) };
+  if (!parsed.success) return fail(firstError(parsed.error));
 
   const id = String(form.get("id") ?? "") || undefined;
   await repo().saveMedication(session.profileId, { ...parsed.data, id, updatedBy: session.role });
@@ -56,14 +61,15 @@ export async function removeMedication(form: FormData): Promise<void> {
   revalidatePath("/circle");
 }
 
-export async function saveAppointment(_prev: FormState, form: FormData): Promise<FormState> {
+export async function saveAppointment(previous: FormState, form: FormData): Promise<FormState> {
+  const fail = (error: string) => formError(previous, error, form, appointmentFields);
   const session = await requireEditor();
-  if (!session) return { error: "The elder has not allowed your role to edit appointments." };
+  if (!session) return fail("The elder has not allowed your role to edit appointments.");
   const parsed = appointmentSchema.safeParse(Object.fromEntries(form));
-  if (!parsed.success) return { error: firstError(parsed.error) };
+  if (!parsed.success) return fail(firstError(parsed.error));
 
   const profile = await repo().getProfile(session.profileId);
-  if (!profile) return { error: "Care circle not found." };
+  if (!profile) return fail("Care circle not found.");
   const { date, time, ...rest } = parsed.data;
   await repo().saveAppointment(session.profileId, {
     ...rest,

@@ -7,16 +7,17 @@ import { SubmitButton } from "./SubmitButton";
 
 export function SetupForm({ defaultTimeZone }: { defaultTimeZone: string }) {
   const [state, action] = useActionState(createProfile, emptyState);
+  const { values } = state;
   return (
-    <form action={action}>
+    <form action={action} key={state.errorCount ?? 0}>
       <fieldset>
         <legend>The person being cared for</legend>
         <label htmlFor="elderName">Their name</label>
-        <input id="elderName" name="elderName" required maxLength={80} />
+        <input id="elderName" name="elderName" defaultValue={values?.elderName} required maxLength={80} />
         <label htmlFor="elderEmail">Their email <span className="hint">(reminders go here first)</span></label>
-        <input id="elderEmail" name="elderEmail" type="email" required />
+        <input id="elderEmail" name="elderEmail" type="email" defaultValue={values?.elderEmail} required />
         <label htmlFor="timeZone">Time zone</label>
-        <input id="timeZone" name="timeZone" defaultValue={defaultTimeZone} required />
+        <input id="timeZone" name="timeZone" defaultValue={values?.timeZone ?? defaultTimeZone} required />
       </fieldset>
 
       <fieldset>
@@ -36,15 +37,15 @@ export function SetupForm({ defaultTimeZone }: { defaultTimeZone: string }) {
           <div className="grid" key={i}>
             <div>
               <label htmlFor={`contactName${i}`}>Name {i + 1}</label>
-              <input id={`contactName${i}`} name={`contactName${i}`} maxLength={80} />
+              <input id={`contactName${i}`} name={`contactName${i}`} defaultValue={values?.[`contactName${i}`]} maxLength={80} />
             </div>
             <div>
               <label htmlFor={`contactEmail${i}`}>Email {i + 1}</label>
-              <input id={`contactEmail${i}`} name={`contactEmail${i}`} type="email" />
+              <input id={`contactEmail${i}`} name={`contactEmail${i}`} type="email" defaultValue={values?.[`contactEmail${i}`]} />
             </div>
             <div>
               <label htmlFor={`contactRole${i}`}>Role {i + 1}</label>
-              <select id={`contactRole${i}`} name={`contactRole${i}`} defaultValue={i === 0 ? "caretaker" : "family"}>
+              <select id={`contactRole${i}`} name={`contactRole${i}`} defaultValue={values?.[`contactRole${i}`] ?? (i === 0 ? "caretaker" : "family")}>
                 <option value="caretaker">Caretaker</option>
                 <option value="family">Family</option>
               </select>

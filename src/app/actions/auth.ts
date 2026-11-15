@@ -6,11 +6,18 @@ import { hashPasscode, verifyPasscode } from "@/lib/auth/passcode";
 import { ROLES } from "@/lib/domain/types";
 import { loginLimiter, repo, SESSION_COOKIE } from "@/lib/server";
 import { createProfileSchema, firstError, loginSchema } from "@/lib/validation";
+import { formError } from "./formError";
 import { startSession } from "./session";
 import type { FormState } from "./types";
 
-export async function createProfile(_prev: FormState, form: FormData): Promise<FormState> {
-  const contacts = [0, 1, 2]
+const contactSlots = [0, 1, 2];
+const setupFields = [
+  "elderName", "elderEmail", "timeZone",
+  ...contactSlots.flatMap((i) => [`contactName${i}`, `contactEmail${i}`, `contactRole${i}`]),
+];
+
+export async function createProfile(previous: FormState, form: FormData): Promise<FormState> {
+  const contacts = contactSlots
     .map((i) => ({
       name: String(form.get(`contactName${i}`) ?? "").trim(),
       email: String(form.get(`contactEmail${i}`) ?? "").trim(),
@@ -19,7 +26,7 @@ export async function createProfile(_prev: FormState, form: FormData): Promise<F
     .filter((c) => c.name || c.email);
 
   const parsed = createProfileSchema.safeParse({ ...Object.fromEntries(form), contacts });
-  if (!parsed.success) return { error: firstError(parsed.error) };
+  if (!parsed.success) return formError(previous, firstError(parsed.error), form, setupFields);
   const v = parsed.data;
 
   const [elder, caretaker, family] = await Promise.all(
@@ -37,18 +44,19 @@ export async function createProfile(_prev: FormState, form: FormData): Promise<F
   redirect(`/circle?welcome=${profile.id}`);
 }
 
-export async function signIn(_prev: FormState, form: FormData): Promise<FormState> {
+export async function signIn(previous: FormState, form: FormData): Promise<FormState> {
+  const fail = (error: string) => formError(previous, error, form, ["profileId"]);
   const parsed = loginSchema.safeParse({
     profileId: String(form.get("profileId") ?? "").trim().toLowerCase(),
     passcode: form.get("passcode"),
   });
-  if (!parsed.success) return { error: firstError(parsed.error) };
+  if (!parsed.success) return fail(firstError(parsed.error));
   const { profileId, passcode } = parsed.data;
 
   const ip = (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   const limitKey = `${ip}|${profileId}`;
   if (!loginLimiter().allow(limitKey)) {
-    return { error: "Too many attempts. Please wait 15 minutes and try again." };
+    return fail("Too many attempts. Please wait 15 minutes and try again.");
   }
 
   const profile = await repo().getProfile(profileId);
@@ -57,7 +65,7 @@ export async function signIn(_prev: FormState, form: FormData): Promise<FormStat
     ? await Promise.all(ROLES.map((r) => verifyPasscode(passcode, profile.passcodeHashes[r])))
     : [];
   const role = ROLES.find((_, i) => matches[i]);
-  if (!profile || !role) return { error: "That care code and passcode do not match." };
+  if (!profile || !role) return fail("That care code and passcode do not match.");
 
   loginLimiter().reset(limitKey);
   await startSession(profile.id, role);

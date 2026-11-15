@@ -8,9 +8,9 @@ import { SubmitButton } from "./SubmitButton";
 export function SignInForm() {
   const [state, action] = useActionState(signIn, emptyState);
   return (
-    <form action={action}>
+    <form action={action} key={state.errorCount ?? 0}>
       <label htmlFor="profileId">Care code</label>
-      <input id="profileId" name="profileId" autoComplete="username" required autoCapitalize="none" />
+      <input id="profileId" name="profileId" defaultValue={state.values?.profileId} autoComplete="username" required autoCapitalize="none" />
       <label htmlFor="passcode">
         Passcode <span className="hint">(6 to 12 digits)</span>
       </label>
