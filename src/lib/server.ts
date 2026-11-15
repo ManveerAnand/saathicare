@@ -2,6 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { readToken, type Session } from "./auth/token";
 import { RateLimiter } from "./auth/rateLimit";
+import { env } from "./env";
 import { consoleMailer, gmailMailer, type Mailer } from "./notify/email";
 import { FirestoreRepo } from "./repo/firestore";
 import { MemoryRepo } from "./repo/memory";
@@ -15,7 +16,7 @@ const globalStore = globalThis as unknown as { __saathiRepo?: Repo; __saathiLimi
 /** Firestore when configured; otherwise an in-memory store for local demos. */
 export function repo(): Repo {
   if (!globalStore.__saathiRepo) {
-    const sa = process.env.FIREBASE_SERVICE_ACCOUNT;
+    const sa = env().FIREBASE_SERVICE_ACCOUNT;
     globalStore.__saathiRepo = sa ? FirestoreRepo.fromEnv(sa) : new MemoryRepo();
   }
   return globalStore.__saathiRepo;
@@ -28,15 +29,12 @@ export function loginLimiter(): RateLimiter {
 }
 
 export function mailer(): Mailer {
-  const { GMAIL_USER, GMAIL_APP_PASSWORD } = process.env;
+  const { GMAIL_USER, GMAIL_APP_PASSWORD } = env();
   return GMAIL_USER && GMAIL_APP_PASSWORD ? gmailMailer(GMAIL_USER, GMAIL_APP_PASSWORD) : consoleMailer;
 }
 
 export function sessionSecret(): string {
-  const secret = process.env.SESSION_SECRET;
-  if (secret && secret.length >= 32) return secret;
-  if (process.env.NODE_ENV === "production") throw new Error("SESSION_SECRET must be at least 32 characters");
-  return "dev-only-secret-do-not-use-in-production";
+  return env().SESSION_SECRET;
 }
 
 export async function currentSession(): Promise<Session | null> {

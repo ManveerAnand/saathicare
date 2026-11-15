@@ -1,4 +1,5 @@
-﻿import { cert, getApps, initializeApp } from "firebase-admin/app";
+import "server-only";
+import { cert, getApps, initializeApp } from "firebase-admin/app";
 import {
   getFirestore,
   type DocumentReference,

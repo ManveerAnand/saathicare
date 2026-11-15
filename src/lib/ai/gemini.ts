@@ -1,22 +1,23 @@
+import "server-only";
 import { FinishReason, GoogleGenAI } from "@google/genai";
+import { env } from "../env";
 import { extractedMedicationsSchema, type ExtractedMedication } from "../validation";
 
 // A fast, non-reasoning model: answers in about a second, where larger reasoning models took
 // over a minute under load. Short explanations and label reading do not need deep reasoning.
-const MODEL = process.env.GEMINI_MODEL ?? "gemini-3.5-flash-lite";
 /** Fail fast rather than leave an elder waiting on a spinner. */
 const TIMEOUT_MS = 25_000;
 
 let client: GoogleGenAI | null = null;
 function ai(): GoogleGenAI {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = env().GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY is not set");
   client ??= new GoogleGenAI({ apiKey });
   return client;
 }
 
 export function geminiConfigured(): boolean {
-  return Boolean(process.env.GEMINI_API_KEY);
+  return Boolean(env().GEMINI_API_KEY);
 }
 
 const EXTRACT_PROMPT = `You read photos of prescriptions and medicine labels for an elderly-care app.
@@ -35,7 +36,7 @@ Rules:
  */
 export async function extractMedications(imageBase64: string, mimeType: string): Promise<ExtractedMedication[]> {
   const res = await ai().models.generateContent({
-    model: MODEL,
+    model: env().GEMINI_MODEL,
     contents: [
       {
         role: "user",
@@ -56,7 +57,7 @@ export async function extractMedications(imageBase64: string, mimeType: string):
 /** A short, plain-language note on what a medicine is for, written for an elderly reader. */
 export async function explainMedication(name: string, dosage: string, instructions: string): Promise<string> {
   const res = await ai().models.generateContent({
-    model: MODEL,
+    model: env().GEMINI_MODEL,
     contents: `Explain to an elderly person, in at most 3 short sentences and simple words:
 what "${name}" (${dosage}) is usually prescribed for, and one practical tip for taking it${
       instructions ? ` (their note: "${instructions}")` : ""

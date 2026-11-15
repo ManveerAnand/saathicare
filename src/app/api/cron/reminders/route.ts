@@ -1,11 +1,12 @@
 import { timingSafeEqual } from "node:crypto";
+import { env } from "@/lib/env";
 import { runReminderJob } from "@/lib/reminderJob";
 import { mailer, repo } from "@/lib/server";
 
 export const dynamic = "force-dynamic";
 
 function authorized(header: string | null): boolean {
-  const secret = process.env.CRON_SECRET;
+  const secret = env().CRON_SECRET;
   if (!secret || !header) return false;
   const expected = Buffer.from(`Bearer ${secret}`);
   const actual = Buffer.from(header);

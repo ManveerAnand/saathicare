@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createToken, SESSION_TTL_MS, type Session } from "@/lib/auth/token";
 import { canEdit } from "@/lib/domain/permissions";
 import type { Role } from "@/lib/domain/types";
+import { env } from "@/lib/env";
 import { currentSession, repo, SESSION_COOKIE, sessionSecret } from "@/lib/server";
 
 /** Signs the person in by setting the session cookie. */
@@ -11,7 +12,7 @@ export async function startSession(profileId: string, role: Role) {
   const session: Session = { profileId, role, exp: Date.now() + SESSION_TTL_MS };
   (await cookies()).set(SESSION_COOKIE, createToken(session, sessionSecret()), {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: env().NODE_ENV === "production",
     sameSite: "strict",
     path: "/",
     maxAge: SESSION_TTL_MS / 1000,
