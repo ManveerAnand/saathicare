@@ -2,8 +2,8 @@
 
 **One shared care plan for an elder, their caretakers and their family, with the elder in charge.**
 
-**Live demo: https://saathicare-six.vercel.app** · Start a care circle in under a minute, no
-account needed.
+**Live demo: https://saathicare-six.vercel.app** · One click opens a sample care circle as the
+elder, family or a caretaker, with a month of history. No sign-up needed.
 
 SaathiCare (*saathi* means "companion" in Hindi) keeps medicines, doses and doctor visits in one
 place. Everyone signs in to the same care circle with their own passcode, and email reminders make
@@ -144,7 +144,8 @@ To use real services, copy `.env.example` to `.env.local` and fill it in.
 ## Tests
 
 ```bash
-npm test          # unit tests: time zones, schedules, adherence, reminders, auth, the reminder job
+npm test          # 84 tests: time zones, schedules, adherence, reminders, the Care Assistant,
+                  # the visit summary, auth, input validation, the reminder job and the demo seed
 npm run check     # lint + type check + tests
 ```
 
