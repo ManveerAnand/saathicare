@@ -1,0 +1,12 @@
+rules_version = '2';
+
+// The browser never talks to Firestore directly: every read and write goes through the
+// server, which checks the signed session and the elder's permissions first.
+// The Admin SDK used by the server is not affected by these rules.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

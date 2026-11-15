@@ -1,69 +1,38 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+﻿import Link from "next/link";
+import { redirect } from "next/navigation";
+import { SignInForm } from "@/components/forms";
+import { currentSession, repo } from "@/lib/server";
 
-export default function Home() {
+export default async function Home() {
+  const session = await currentSession();
+  // Check the profile too: a stale session for a deleted circle would otherwise loop.
+  if (session && (await repo().getProfile(session.profileId))) redirect("/circle");
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.tsx</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="grid">
+      <section aria-labelledby="intro">
+        <h1 id="intro">One care plan for the elder, their caretakers and family</h1>
+        <p className="lead">
+          SaathiCare keeps medicines, doses and doctor visits in one shared place. The elder stays in
+          charge: they decide who can change things, and they are reminded first before anyone else is told.
+        </p>
+        <ul className="lead">
+          <li>Each person signs in with their own passcode</li>
+          <li>One tap to mark a dose as taken</li>
+          <li>Email reminders for upcoming doses, missed doses and appointments</li>
+          <li>Photograph a prescription and Gemini drafts the schedule for you to check</li>
+        </ul>
+        <p>
+          <Link className="button secondary big" href="/setup">
+            Start a new care circle
+          </Link>
+        </p>
+      </section>
+
+      <section className="card" aria-labelledby="signin">
+        <h2 id="signin">Open your care circle</h2>
+        <SignInForm />
+      </section>
     </div>
   );
 }
