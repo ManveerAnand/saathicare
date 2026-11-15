@@ -40,7 +40,10 @@ export const medicationSchema = z
     name: text(80),
     dosage: text(60),
     instructions: optionalText(300),
-    times: z.array(localTime).min(1).max(8),
+    times: z.array(localTime).min(1).max(8).refine(
+      (times) => new Set(times).size === times.length,
+      "Use each dose time only once",
+    ),
     startDate: localDate,
     endDate: localDate.optional(),
   })

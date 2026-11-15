@@ -27,6 +27,12 @@ describe("dosesForDate", () => {
     expect(dosesForDate([makeMedication()], [log(morning)], "2026-11-15", TZ, now)[0].status).toBe("taken");
   });
 
+  it("creates one dose for a repeated time in a previously saved medicine", () => {
+    const med = makeMedication({ times: ["08:00", "08:00", "20:00"] });
+    const doses = dosesForDate([med], [], "2026-11-15", TZ, new Date(morning));
+    expect(doses.map((dose) => dose.localTime)).toEqual(["08:00", "20:00"]);
+  });
+
   it("skips inactive medications and dates outside the course", () => {
     const now = new Date("2026-11-15T00:00:00Z");
     expect(dosesForDate([makeMedication({ active: false })], [], "2026-11-15", TZ, now)).toEqual([]);

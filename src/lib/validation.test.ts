@@ -96,6 +96,11 @@ describe("medicationSchema", () => {
     expect(medicationSchema.safeParse({ ...valid, times: [] }).success).toBe(false);
   });
 
+  it("rejects repeated dose times", () => {
+    const result = medicationSchema.safeParse({ ...valid, times: ["08:00", "08:00"] });
+    expect(result.error?.issues[0]).toMatchObject({ path: ["times"], message: "Use each dose time only once" });
+  });
+
   it("rejects an endDate before startDate", () => {
     const r = medicationSchema.safeParse({ ...valid, endDate: "2026-10-31" });
     expect(r.success).toBe(false);

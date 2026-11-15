@@ -7,8 +7,6 @@ import type { ExtractedMedication } from "@/lib/validation";
 import { emptyState, Status } from "./Status";
 import { SubmitButton } from "./SubmitButton";
 
-const DEFAULT_TIMES = ["08:00", "", "", ""];
-
 export function MedicationForm({
   medication,
   draft,
@@ -21,9 +19,8 @@ export function MedicationForm({
   const [state, action] = useActionState(saveMedication, emptyState);
   const { values } = state;
   const source = medication ?? draft;
-  const times = [...(source?.times ?? []), ...DEFAULT_TIMES].slice(0, 4);
-  if (!source?.times?.length) times[0] = "08:00";
-  const submittedTimes = values?.times?.split(",");
+  const initialTimes = values?.times?.split(",") ?? source?.times ?? ["08:00"];
+  const times = Array.from({ length: Math.max(4, initialTimes.length) }, (_, i) => initialTimes[i] ?? "");
   const prefix = medication?.id ?? (draft ? `draft-${draft.name}` : "new");
 
   return (
@@ -41,7 +38,7 @@ export function MedicationForm({
           {times.map((t, i) => (
             <div key={i}>
               <label htmlFor={`${prefix}-time${i}`} className="sr-only">Time {i + 1}</label>
-              <input id={`${prefix}-time${i}`} name="times" type="time" defaultValue={submittedTimes ? submittedTimes[i] ?? "" : t} />
+              <input id={`${prefix}-time${i}`} name="times" type="time" defaultValue={t} />
             </div>
           ))}
         </div>

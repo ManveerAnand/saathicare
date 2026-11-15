@@ -25,7 +25,7 @@ export function dosesForDate(
 
   for (const med of meds) {
     if (!activeOn(med, date)) continue;
-    for (const time of med.times) {
+    for (const time of new Set(med.times)) {
       const at = zonedToUtc(date, time, timeZone);
       const scheduledFor = at.toISOString();
       const log = logByKey.get(`${med.id}|${scheduledFor}`);
