@@ -11,7 +11,11 @@ import type { Repo } from "./repo/types";
 export const SESSION_COOKIE = "saathi_session";
 
 // Module-level singletons survive across requests on a warm server instance.
-const globalStore = globalThis as unknown as { __saathiRepo?: Repo; __saathiLimiter?: RateLimiter };
+const globalStore = globalThis as unknown as {
+  __saathiRepo?: Repo;
+  __saathiLimiter?: RateLimiter;
+  __saathiAiLimiters?: Record<"explain" | "scan", RateLimiter>;
+};
 
 /** Firestore when configured; otherwise an in-memory store for local demos. */
 export function repo(): Repo {
@@ -26,6 +30,13 @@ export function repo(): Repo {
 export function loginLimiter(): RateLimiter {
   globalStore.__saathiLimiter ??= new RateLimiter(5, 15 * 60 * 1000);
   return globalStore.__saathiLimiter;
+}
+
+/** Counts AI requests separately for explanations and scans in a ten-minute window. */
+export function aiLimiter(action: "explain" | "scan"): RateLimiter {
+  const windowMs = 10 * 60 * 1000;
+  globalStore.__saathiAiLimiters ??= { explain: new RateLimiter(20, windowMs), scan: new RateLimiter(10, windowMs) };
+  return globalStore.__saathiAiLimiters[action];
 }
 
 export function mailer(): Mailer {

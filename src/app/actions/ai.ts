@@ -2,8 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { explainMedication, extractMedications, geminiConfigured } from "@/lib/ai/gemini";
+import { detectImageType } from "@/lib/ai/image";
 import { logError } from "@/lib/log";
-import { repo } from "@/lib/server";
+import { aiLimiter, repo } from "@/lib/server";
 import { requireEditor, requireSession } from "./session";
 import type { ScanState } from "./types";
 
@@ -16,6 +17,7 @@ export async function explain(form: FormData): Promise<void> {
   const med = id ? await repo().getMedication(session.profileId, id) : null;
   // Cached on the medication, so Gemini is asked once per medicine, not on every view.
   if (!med || med.explanation || !geminiConfigured()) return;
+  if (!aiLimiter("explain").allow(`${session.profileId}|${session.role}`)) return;
   try {
     const text = await explainMedication(med.name, med.dosage, med.instructions);
     if (text) await repo().setExplanation(session.profileId, id, text);
@@ -35,10 +37,14 @@ export async function scanPrescription(_prev: ScanState, form: FormData): Promis
   if (!(file instanceof File) || file.size === 0) return { error: "Choose a photo first." };
   if (!IMAGE_TYPES.has(file.type)) return { error: "Use a JPEG, PNG or WebP photo." };
   if (file.size > MAX_IMAGE_BYTES) return { error: "The photo must be under 4 MB." };
+  if (!aiLimiter("scan").allow(`${session.profileId}|${session.role}`)) {
+    return { error: "Too many photos. Please try again in 10 minutes or add the medicine by hand." };
+  }
 
   try {
-    const base64 = Buffer.from(await file.arrayBuffer()).toString("base64");
-    const drafts = await extractMedications(base64, file.type);
+    const bytes = Buffer.from(await file.arrayBuffer());
+    if (detectImageType(bytes) !== file.type) return { error: "Use a JPEG, PNG or WebP photo." };
+    const drafts = await extractMedications(bytes.toString("base64"), file.type);
     return drafts.length
       ? { drafts, ok: `Found ${drafts.length}. Check each one, then save it.` }
       : { error: "No medicines could be read clearly. Try a sharper photo, or add them by hand." };
